@@ -1,4 +1,4 @@
-class FoodItemsController < ApplicationController
+class Api::V1::FoodItemsController < ApplicationController
   before_action :set_food_item, only: %i[ show update destroy ]
 
   # GET /food_items
