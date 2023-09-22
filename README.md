@@ -1,6 +1,15 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
+To start Frontend server (client) -
+```
+npm run dev
+```
+To start Backend server
+```
+rails s -p 3009
+```
+
+<!-- This README would normally document whatever steps are necessary to get the
 application up and running.
 
 Things you may want to cover:
@@ -21,4 +30,4 @@ Things you may want to cover:
 
 * Deployment instructions
 
-* ...
+* ... -->
