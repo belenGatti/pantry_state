@@ -4,14 +4,15 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "lib": ["es6", "dom"],
-    "module": "es6",
+    "module": "ESNext",
     "moduleResolution": "node",
     "sourceMap": true,
-    "target": "es5",
+    "target": "ESnext",
     "jsx": "react",
     "noEmit": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true
+    "strict": true,
+    "types": ["node"]
   },
   "exclude": ["**/*.spec.ts", "node_modules", "vendor", "public"],
   "compileOnSave": false
