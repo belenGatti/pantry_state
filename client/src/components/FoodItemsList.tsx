@@ -12,6 +12,7 @@ function FoodItemsList() {
     const [foodItems, setFoodItems] = useState([]);
     const navigate = useNavigate();
     async function handleDelete(id: number) {
+      // @TODO add confirmation dialog
       await deleteFoodItem(id).then(() => getFoodItems().then((response) => {
         setFoodItems(response);
       }

@@ -108,6 +108,7 @@ function NewItemForm() {
     const [isEditMode, setIsEditMode] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
+
      /** To retrieve information sent by route params */
     useEffect(() => {
         if (location.state?.foodItem) {
@@ -125,6 +126,7 @@ function NewItemForm() {
             setIsLoading(false)
         }
     }, [location.state?.foodItem])
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -150,10 +152,17 @@ function NewItemForm() {
             return navigate('/')
         }
     })
+
     const index = FoodItemsOptions.findIndex((option) => option.label === formik.values.name)
+
     if (isLoading) {
         return <div>Loading...</div>
     }
+
+    const handleCancel = () => {
+        return navigate('/')
+    }
+
     return (
     <div style={{width: '300px'}}>
         <FormikProvider value={formik}>
@@ -163,9 +172,9 @@ function NewItemForm() {
                     options={FoodItemsOptions} 
                     onChange={(e, value) => formik.setFieldValue('name', value?.label)} 
                     renderInput={(params) => <TextField {...params} label='FoodItem' name="name"/>}
-                    defaultValue={FoodItemsOptions[index] ? FoodItemsOptions[index] : null}
+                    defaultValue={isEditMode ? FoodItemsOptions[index] : null}
                     /** Key used to re-render */
-                    key={FoodItemsOptions[index].id ? FoodItemsOptions[index].id : 'new'}
+                    key={isEditMode ? FoodItemsOptions[index].id : 'new'}
                     />
                 <ErrorMessage name='name' />
                 <TextField name='quantity' type='number' 
@@ -181,8 +190,8 @@ function NewItemForm() {
                     <ErrorMessage name='expiration_date' />
                 </LocalizationProvider>
                 {/* @TODO add check if item exists already and if so update the quantity */}
-                {/* @TODO add cancel button */}
                 <Button type='submit'>Submit</Button>
+                <Button onClick={handleCancel}>Cancel</Button>
             </form>
         </FormikProvider>
         </div>
