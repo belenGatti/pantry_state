@@ -1,19 +1,43 @@
-// here is what it will be rendered as a list. first the name of the product like big and then smaller the quantity
-// on click you can see a card where it will be more detailed and the expiration date on red
-// accordion component
 import React from 'react'
-import {Card, Accordion} from '@mui/material'
-import {FoodItem} from '../types'
+import {Accordion, AccordionSummary, AccordionDetails, Typography, IconButton, Box} from '@mui/material'
+import {FoodItem as FoodItemType} from '../FoodItems.types'
+import { formatRelative } from 'date-fns'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-function FoodItem(foodItem: FoodItem) {
-    const {name, quantity, expiration_date} = foodItem
+interface FoodItemProps {
+    foodItem: FoodItemType
+    handleDelete: (id: number) => void
+    handleEdit: (foodItem: FoodItemType) => void
+}
+
+function FoodItem(props: FoodItemProps) {
+    const {handleDelete, handleEdit, foodItem} = props; 
+    const {name, quantity, expirationDate} = foodItem;
+
     return (
-        <Accordion>
-            {/* <Card>
-                {name}
-                Quantity: {quantity}
-                Expiration date: {expiration_date.toDateString()}
-            </Card> */}
+        <Accordion style={{width: '300px'}}>
+            {/* @TODO style icons better */}
+            <Box sx={{ display: "flex", justifyContent: 'space-between' }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h5">{name}</Typography>
+            </AccordionSummary>
+            <Box>
+            <IconButton onClick={() => handleEdit(foodItem)}>
+              <EditIcon />
+            </IconButton>
+
+            <IconButton onClick={() => handleDelete(foodItem.id)}>
+              <DeleteIcon />
+            </IconButton>
+            </Box>
+            </Box>
+            <AccordionDetails>
+                Quantity: {quantity} 
+                <br/>
+                Expiration date: {formatRelative(new Date(expirationDate), new Date())}
+            </AccordionDetails>
         </Accordion>
     )
 }

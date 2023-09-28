@@ -1,16 +1,22 @@
-import React from 'react'
-import { ErrorMessage, Field, useFormik, FormikProvider } from 'formik';
+import React, { useEffect, useState } from 'react'
+import { ErrorMessage, useFormik, FormikProvider } from 'formik';
 import {object, string, number, date} from 'yup';
 import { Autocomplete, Button, TextField, } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { createFoodItem } from '../services/FoodItems.service';
+import { createFoodItem, updateFoodItem } from '../services/FoodItems.service';
+import { useNavigate, useLocation } from "react-router-dom";
 
 const newItemValidationSchema = object({
     name: string().required('Name is required'),
-    quantity: number().required('Quantity is required'),
-    expiration_date: date().required('Expiration date is required').nullable()
+    quantity: number().min(0).required('Quantity is required'),
+    expirationDate: date().required('Expiration date is required').nullable()
 })
+
+interface Option {
+    label: string,
+    id?: string
+}
 
 // const FoodItemsOptions = [
 //     {
@@ -89,7 +95,7 @@ const newItemValidationSchema = object({
 //         {label: 'Peeled Tomatoes', value: '411'},
 //     ]},
 // ]
-const FoodItemsOptions = [
+const FoodItemsOptions: Option[] = [
     {label: 'Apple', id: '100'},
     {label: 'Banana', id: '101'},
     {label: 'Orange', id: '102'},
@@ -98,32 +104,88 @@ const FoodItemsOptions = [
 ]
 
 function NewItemForm() {
+    const [isLoading, setIsLoading] = useState(true);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const location = useLocation();
+    const navigate = useNavigate();
+     /** To retrieve information sent by route params */
+    useEffect(() => {
+        if (location.state?.foodItem) {
+            setIsEditMode(true)
+            formik.setValues({
+                id: location.state.foodItem.id,
+                name: location.state.foodItem.name,
+                quantity: location.state.foodItem.quantity,
+                expirationDate: location.state.foodItem.expirationDate,
+                modifiedAt: location.state.foodItem.modifiedAt,
+                createdAt: location.state.foodItem.createdAt,
+            })
+            setIsLoading(false)
+        } else {
+            setIsLoading(false)
+        }
+    }, [location.state?.foodItem])
     const formik = useFormik({
+        enableReinitialize: true,
         initialValues: {
             name: '',
             quantity: 0,
-            expiration_date: new Date()
+            expirationDate: new Date().toDateString(),
+            modifiedAt: null,
+            createdAt: null,
+            id: null
         },
         validationSchema: newItemValidationSchema,
         onSubmit: async (values) => {
-            console.log(values)
-            await createFoodItem(values)
+            const expirationDate = new Date(values.expirationDate).toISOString()
+            if (isEditMode) {
+                if (values.id !== null) {
+                    await updateFoodItem({...values, expirationDate})
+                    return navigate('/')
+                } else {
+                    console.log('Error: id, modifiedAt and createdAt should be null')
+                }
+            }
+            await createFoodItem({...values, expirationDate})
+            return navigate('/')
         }
     })
+    const index = FoodItemsOptions.findIndex((option) => option.label === formik.values.name)
+    if (isLoading) {
+        return <div>Loading...</div>
+    }
     return (
+    <div style={{width: '300px'}}>
         <FormikProvider value={formik}>
             <form onSubmit={formik.handleSubmit}>
-                <Autocomplete id='name' options={FoodItemsOptions} onChange={(e, value) => formik.setFieldValue('name', value?.label)} renderInput={(params) => <TextField {...params} label='FoodItem' name="name"/>}/>
+                {/* @TODO add option to type new item and add to existing list (and backend) */}
+                <Autocomplete id='name'
+                    options={FoodItemsOptions} 
+                    onChange={(e, value) => formik.setFieldValue('name', value?.label)} 
+                    renderInput={(params) => <TextField {...params} label='FoodItem' name="name"/>}
+                    defaultValue={FoodItemsOptions[index] ? FoodItemsOptions[index] : null}
+                    /** Key used to re-render */
+                    key={FoodItemsOptions[index].id ? FoodItemsOptions[index].id : 'new'}
+                    />
                 <ErrorMessage name='name' />
-                <Field name='quantity' type='number' value={formik.values.quantity} onChange={formik.handleChange} />
+                <TextField name='quantity' type='number' 
+                InputProps={{
+                    inputProps: { 
+                        max: 100, min: 0 
+                    }
+                }}
+                value={formik.values.quantity} onChange={formik.handleChange} />
                 <ErrorMessage name='quantity' />
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <DatePicker value={formik.values.expiration_date} onChange={(value)=> formik.setFieldValue('expiration_date', value)} />
+                    <DatePicker value={new Date(formik.values.expirationDate)} onChange={(value)=> formik.setFieldValue('expirationDate', value)} />
                     <ErrorMessage name='expiration_date' />
                 </LocalizationProvider>
+                {/* @TODO add check if item exists already and if so update the quantity */}
+                {/* @TODO add cancel button */}
                 <Button type='submit'>Submit</Button>
             </form>
         </FormikProvider>
+        </div>
     )
   }
 
