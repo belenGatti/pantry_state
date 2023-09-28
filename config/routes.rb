@@ -7,6 +7,10 @@ Rails.application.routes.draw do
       resources :food_items
     end
   end
+
+  get '/auth/auth0/callback' => 'auth0#callback'
+  get '/auth/failure' => 'auth0#failure'
+  get '/auth/logout' => 'auth0#logout'
   # Defines the root path route ("/")
   # root "articles#index"
 end

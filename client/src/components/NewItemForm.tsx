@@ -143,13 +143,13 @@ function NewItemForm() {
             if (isEditMode) {
                 if (values.id !== null) {
                     await updateFoodItem({...values, expirationDate})
-                    return navigate('/')
+                    return navigate('/food-items-list')
                 } else {
                     console.log('Error: id, modifiedAt and createdAt should be null')
                 }
             }
             await createFoodItem({...values, expirationDate})
-            return navigate('/')
+            return navigate('/food-items-list')
         }
     })
 
@@ -160,7 +160,7 @@ function NewItemForm() {
     }
 
     const handleCancel = () => {
-        return navigate('/')
+        return navigate('/food-items-list')
     }
 
     return (

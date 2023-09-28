@@ -7,10 +7,12 @@ import FoodItem from "./FoodItem";
 import {Link} from 'react-router-dom'
 import {deleteFoodItem} from '../services/FoodItems.service';
 import { useNavigate } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 
 function FoodItemsList() {
     const [foodItems, setFoodItems] = useState([]);
     const navigate = useNavigate();
+    const {isAuthenticated, logout} = useAuth0();
     async function handleDelete(id: number) {
       // @TODO add confirmation dialog
       await deleteFoodItem(id).then(() => getFoodItems().then((response) => {
@@ -30,6 +32,7 @@ function FoodItemsList() {
   //@TODO filter by expiration date and show items that will expire in the next 3 days in red and at the beginning
     return (
         <div style={{width: '50%', height: '100%',  marginLeft: '20%', marginRight: '20%'}}>
+          {isAuthenticated && <Button onClick={() => logout()}>Logout</Button>}
           <Typography variant='h1'>Food Items</Typography>
           {/* //@TODO add a search bar */}
           {/* //@TODO make all panels close? or close prev panel when opening another one */}
