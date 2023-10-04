@@ -35,19 +35,17 @@ function FoodItemsList() {
    
     useEffect(() => {
       const fetchFoodItems = async () => {
-        if (isAuthenticated === false) return;
+        if (!isAuthenticated) return;
         try {
           const accessToken = await getAccessTokenSilently();
-          await getFoodItems(accessToken).then((response) => {
-            return setFoodItems(response);
-          }
-          );
+          const response = await getFoodItems(accessToken);
+          setFoodItems(response);
         } catch (error) {
           console.error("Error fetching food items:", error);
         }
       };
       fetchFoodItems()
-    }, [])
+    }, [foodItems, isAuthenticated, getAccessTokenSilently])
 
   //@TODO list view = pantry view that will involve a lot of stlying 
   //@TODO filter by expiration date and show items that will expire in the next 3 days in red and at the beginning
