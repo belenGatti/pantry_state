@@ -6,6 +6,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { createFoodItem, updateFoodItem } from '../services/FoodItems.service';
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const newItemValidationSchema = object({
     name: string().required('Name is required'),
@@ -106,10 +107,45 @@ const FoodItemsOptions: Option[] = [
 function NewItemForm() {
     const [isLoading, setIsLoading] = useState(true);
     const [isEditMode, setIsEditMode] = useState(false);
+    const {isAuthenticated, getAccessTokenSilently} = useAuth0();
     const location = useLocation();
     const navigate = useNavigate();
 
      /** To retrieve information sent by route params */
+    const formik = useFormik({
+         enableReinitialize: true,
+         initialValues: {
+             name: '',
+             quantity: 0,
+             expirationDate: new Date().toDateString(),
+             modifiedAt: null,
+             createdAt: null,
+             id: null
+         },
+         validationSchema: newItemValidationSchema,
+         onSubmit: async (values) => {
+             const expirationDate = new Date(values.expirationDate).toISOString()
+             if (isEditMode) {
+                if (values.id !== null) {
+                try {
+                    const accessToken = await getAccessTokenSilently();
+                    await updateFoodItem({...values, expirationDate}, accessToken)
+                    return navigate('/food-items-list')
+                } catch (error) {
+                    console.error("Error updating food item:", error);
+                }
+             }
+             } else if (!isEditMode && isAuthenticated) {
+                 try {
+                     const accessToken = await getAccessTokenSilently();
+                     await createFoodItem({...values, expirationDate}, accessToken)
+                     return navigate('/food-items-list')
+                 } catch (error) {
+                     console.error("Error creating NEW food item:", error);
+                 }
+             }
+         }
+     })
     useEffect(() => {
         if (location.state?.foodItem) {
             setIsEditMode(true)
@@ -125,33 +161,8 @@ function NewItemForm() {
         } else {
             setIsLoading(false)
         }
-    }, [location.state?.foodItem])
+    }, [])
 
-    const formik = useFormik({
-        enableReinitialize: true,
-        initialValues: {
-            name: '',
-            quantity: 0,
-            expirationDate: new Date().toDateString(),
-            modifiedAt: null,
-            createdAt: null,
-            id: null
-        },
-        validationSchema: newItemValidationSchema,
-        onSubmit: async (values) => {
-            const expirationDate = new Date(values.expirationDate).toISOString()
-            if (isEditMode) {
-                if (values.id !== null) {
-                    await updateFoodItem({...values, expirationDate})
-                    return navigate('/food-items-list')
-                } else {
-                    console.log('Error: id, modifiedAt and createdAt should be null')
-                }
-            }
-            await createFoodItem({...values, expirationDate})
-            return navigate('/food-items-list')
-        }
-    })
 
     const index = FoodItemsOptions.findIndex((option) => option.label === formik.values.name)
 

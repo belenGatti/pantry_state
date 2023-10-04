@@ -5,11 +5,13 @@ import './index.css'
 import { Auth0Provider } from '@auth0/auth0-react';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <Auth0Provider domain="pantry-state.eu.auth0.com" clientId='17UMeGoC4bz7axhQYYFwDg6diHEEOKRS' authorizationParams={{
-    redirect_uri: `${window.location.origin}/food-items-list`
+  <React.StrictMode>
+    <Auth0Provider domain="pantry-state.eu.auth0.com" clientId='17UMeGoC4bz7axhQYYFwDg6diHEEOKRS' authorizationParams={{
+    redirect_uri: `${window.location.origin}/food-items-list`,
+    audience: 'https://pantry-state.eu.auth0.com/api/v2/',
+    scope: 'read:current_user',
   }}>
-    <React.StrictMode>
       <App />
-    </React.StrictMode>
-  </Auth0Provider>,
+    </Auth0Provider>
+  </React.StrictMode>,
 )

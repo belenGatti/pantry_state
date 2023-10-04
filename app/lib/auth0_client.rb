@@ -8,18 +8,10 @@ class Auth0Client
   # Auth0 Client Objects 
   Error = Struct.new(:message, :status)
   Response = Struct.new(:decoded_token, :error)
-  Token = Struct.new(:token) do
-    def validate_permissions(permissions)
-      required_permissions = Set.new permissions
-      scopes = token[0]['scope']
-      token_permissions = scopes.present? ? Set.new(scopes.split(" ")) : Set.new
-      required_permissions <= token_permissions
-    end
-  end
 
   # Helper Functions 
   def self.domain_url
-    "https://#{Rails.configuration.auth0.domain}/"
+    "https://#{Rails.configuration.auth0[:auth0_domain]}/"
   end
 
   def self.decode_token(token, jwks_hash)
@@ -51,7 +43,6 @@ class Auth0Client
 
     decoded_token = decode_token(token, jwks_hash)
 
-    Response.new(Token.new(decoded_token), nil)
   rescue JWT::VerificationError, JWT::DecodeError => e
     error = Error.new('Bad credentials', :unauthorized)
     Response.new(nil, error)

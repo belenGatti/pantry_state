@@ -10,24 +10,45 @@ import { useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 
 function FoodItemsList() {
-    const [foodItems, setFoodItems] = useState([]);
+    const [foodItems, setFoodItems] = useState<FoodItemType[]>([]);
     const navigate = useNavigate();
-    const {isAuthenticated, logout} = useAuth0();
+    const {isAuthenticated, logout, getAccessTokenSilently} = useAuth0();
+
     async function handleDelete(id: number) {
       // @TODO add confirmation dialog
-      await deleteFoodItem(id).then(() => getFoodItems().then((response) => {
-        setFoodItems(response);
+      // await deleteFoodItem(id).then(() => getFoodItems(accessToken).then((response) => {
+      //   setFoodItems(response);
+      // }
+      // ));
+      try {
+        const accessToken = await getAccessTokenSilently();
+        await deleteFoodItem(id, accessToken);
+        const foodItems = await getFoodItems(accessToken);
+        setFoodItems(foodItems);
+      } catch (error) {
+        console.error("Error deleting food item:", error);
       }
-      ));
     }
     async function handleEdit(foodItem: FoodItemType) {
       return navigate('/update-food-item', {state: {foodItem: foodItem}})
     }
+   
     useEffect(() => {
-      getFoodItems().then((response) => {
-        setFoodItems(response);
-      });
+      const fetchFoodItems = async () => {
+        if (isAuthenticated === false) return;
+        try {
+          const accessToken = await getAccessTokenSilently();
+          await getFoodItems(accessToken).then((response) => {
+            return setFoodItems(response);
+          }
+          );
+        } catch (error) {
+          console.error("Error fetching food items:", error);
+        }
+      };
+      fetchFoodItems()
     }, [])
+
   //@TODO list view = pantry view that will involve a lot of stlying 
   //@TODO filter by expiration date and show items that will expire in the next 3 days in red and at the beginning
     return (

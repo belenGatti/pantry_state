@@ -1,4 +1,6 @@
 class Api::V1::FoodItemsController < ApplicationController
+  include Secured
+  before_action :authorize
   before_action :set_food_item, only: %i[ show update destroy ]
 
   # GET /food_items
