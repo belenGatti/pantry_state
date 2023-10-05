@@ -5,9 +5,11 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :food_items
+      resources :items
     end
   end
 
+  # Auth0 routes
   get '/auth/auth0/callback' => 'auth0#callback'
   get '/auth/failure' => 'auth0#failure'
   get '/auth/logout' => 'auth0#logout'
