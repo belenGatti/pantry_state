@@ -26,12 +26,12 @@
 /storage/*
 !/storage/.keep
 /tmp/storage/*
-!/tmp/storage/
+!/tmp/storage/ß
 !/tmp/storage/.keep
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
-/config/auth0.yml
+config/auth0.yml
 
 .env
 .env.development
