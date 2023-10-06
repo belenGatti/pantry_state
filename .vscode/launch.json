@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Mozilla Firefox",
+        "type": "firefox",
+        "request": "launch",
+        "url": "http://localhost:5173", // Change this URL to match your development server
+        "webRoot": "${workspaceFolder}",
+        "sourceMapPathOverrides": {
+          "webpack:///src/*": "${webRoot}/*"
+        }
+      }
+    ]
+  }
+  
