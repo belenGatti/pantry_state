@@ -1,5 +1,0 @@
-development:
-  auth0_domain: pantry-state.eu.auth0.com
-  auth0_client_id: 17UMeGoC4bz7axhQYYFwDg6diHEEOKRS
-  auth0_client_secret: QBOuw76ZSkzHcM3oJBfOnaRYscij3GHRsaHzbB38uXEGEkc2sdq7Ugw99Np6Qca_
-  auth0_audience: http://localhost:3009/api/v1
