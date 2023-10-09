@@ -1,6 +1,5 @@
 class Api::V1::FoodItemsController < ApplicationController
   include Secured
-  before_action :authorize
   before_action :set_food_item, only: %i[ show update destroy ]
 
   # GET /food_items
@@ -17,12 +16,23 @@ class Api::V1::FoodItemsController < ApplicationController
 
   # POST /food_items
   def create
-    @food_item = FoodItem.new(food_item_params)
+    @existing_food_item = FoodItem.find_by(id: params[:id])
 
-    if @food_item.save
+    if @existing_food_item
+
+      # @existing_food_item.update(quantity: @existing_food_item.quantity + params[:quantity])
+      puts "Updating quantity for existing food item: #{@existing_food_item}"
+      @existing_food_item.update(quantity: @existing_food_item.quantity + params[:quantity])
+      puts "Updated quantity to: #{@existing_food_item.quantity}"
+      render json: @existing_food_item, status: :created, location: @existing_food_item
+    else 
+      @food_item = FoodItem.new(food_item_params)
+
+      if @food_item.save
       render json: @food_item, status: :created, location: @food_item
-    else
+      else
       render json: @food_item.errors, status: :unprocessable_entity
+      end
     end
   end
 

@@ -45,7 +45,7 @@ function FoodItemsList() {
         }
       };
       fetchFoodItems()
-    }, [foodItems, isAuthenticated, getAccessTokenSilently])
+    }, [isAuthenticated, getAccessTokenSilently])
 
   //@TODO list view = pantry view that will involve a lot of stlying 
   //@TODO filter by expiration date and show items that will expire in the next 3 days in red and at the beginning

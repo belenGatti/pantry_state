@@ -5,7 +5,12 @@ class Auth0Controller < ApplicationController
     # Refer to https://github.com/auth0/omniauth-auth0/blob/master/EXAMPLES.md#example-of-the-resulting-authentication-hash for complete information on 'omniauth.auth' contents.
     auth_info = request.env['omniauth.auth']
     session[:userinfo] = auth_info['extra']['raw_info']
-
+    # @user = User.find_by(sub: @info['sub'])
+    # if @user.nil?
+    #   @user = User.create(auth0_id: @info['sub'], name: @info['name'], email: @info['email'])
+    # end
+    # puts "User Info: #{@info}"
+    # puts "User found: #{@user.present?}"
     # Redirect to the URL you want after successful auth
     redirect_to '/food-items-list'
   end
@@ -16,5 +21,18 @@ class Auth0Controller < ApplicationController
   end
 
   def logout
+    reset_session
+    redirect_to logout_url, allow_other_host: true
+  end
+
+  private
+
+  def logout_url
+    request_params = {
+      returnTo: root_url, 
+      client_id: AUTH0_CONFIG['auth0_client_id']
+    }
+  
+    URI::HTTPS.build(host: AUTH0_CONFIG['auth0_domain'], path: '/v2/logout', query: request_params.to_query).to_s
   end
 end
