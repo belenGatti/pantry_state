@@ -10,28 +10,33 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_06_094635) do
-  create_table "food_items", force: :cascade do |t|
-    t.string "name"
-    t.string "quantity"
-    t.date "expiration_date"
-    t.string "internal_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "intern_id_id"
-    t.integer "users_id"
-    t.index ["intern_id_id"], name: "index_food_items_on_intern_id_id"
-    t.index ["users_id"], name: "index_food_items_on_users_id"
-  end
-
+ActiveRecord::Schema[7.0].define(version: 2023_10_10_103150) do
   create_table "items", force: :cascade do |t|
-    t.string "intern_id"
+    t.string "internal_id"
     t.string "label"
     t.string "category"
     t.string "measurement_unit"
     t.string "image"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "pantries", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_pantries_on_user_id"
+  end
+
+  create_table "pantry_items", force: :cascade do |t|
+    t.integer "pantry_id", null: false
+    t.integer "item_id", null: false
+    t.integer "quantity"
+    t.date "expiration_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["item_id"], name: "index_pantry_items_on_item_id"
+    t.index ["pantry_id"], name: "index_pantry_items_on_pantry_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -42,6 +47,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_06_094635) do
     t.datetime "updated_at", null: false
   end
 
-  add_foreign_key "food_items", "items", column: "intern_id_id"
-  add_foreign_key "food_items", "users", column: "users_id"
+  add_foreign_key "pantries", "users"
+  add_foreign_key "pantry_items", "items"
+  add_foreign_key "pantry_items", "pantries"
 end
