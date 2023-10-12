@@ -25,7 +25,7 @@ function NewItemForm() {
     const [isLoading, setIsLoading] = useState(true);
     const [isEditMode, setIsEditMode] = useState(false);
     const [foodItemOptions, setFoodItemOptions] = useState<Option[]>([]);
-    const {isAuthenticated, getAccessTokenSilently} = useAuth0();
+    const {isAuthenticated, getAccessTokenSilently, user} = useAuth0();
     const location = useLocation();
     const navigate = useNavigate();
     /** Fetches available items from the BE, transforms them to use in the autocomplete and sets them in the state*/
@@ -54,6 +54,7 @@ function NewItemForm() {
          },
          validationSchema: newItemValidationSchema,
          onSubmit: async (values) => {
+            console.log(isEditMode, isAuthenticated, user)
              const expirationDate = new Date(values.expirationDate).toISOString()
              if (isEditMode) {
                 if (values.id !== null) {

@@ -1,14 +1,19 @@
-import {BrowserRouter as Router} from 'react-router-dom';
 import React from 'react';
-import AppRoutes from './components/AppRoutes'
+import { Route, Routes } from "react-router-dom";
 import './App.css'
+import NewItemForm from './components/NewItemForm';
+import FoodItemsList from './components/FoodItemsList';
+import LoginPage from './components/LoginPage';
 
-function App() {
+export const App = () => {
 
   return (
-    <Router>
-      <AppRoutes/>
-    </Router>
+    <Routes>
+      <Route path="/" element={<LoginPage />} />
+      <Route path="food-items-list" element={<FoodItemsList />} />
+      <Route path="new-food-item" element={<NewItemForm />} />
+      <Route path="update-food-item" element={<NewItemForm />} />
+    </Routes>
   );
 }
 

@@ -14,7 +14,7 @@ export const getFoodItems = async (accessToken: string): Promise<FoodItem[]> => 
     }
   }
   try {
-    const response = await axios.get(`${API_URL}/food_items`, config);
+    const response = await axios.get(`${API_URL}/pantry_items`, config);
     if (response.status >= 200 && response.status < 300) {
       const foodItems = response.data.map((foodItem: APIFoodItem) => transformFromAPI(foodItem));
       return foodItems;
@@ -40,8 +40,8 @@ export const createFoodItem = async (foodItem: FoodItemRequest, accessToken: str
   const expiration_date_parsed = new Date(foodItem.expirationDate);
 
   try {
-    console.log(`${API_URL}/food_items`)
-    const response = await axios.post(`${API_URL}/food_items`, {...foodItemAPI, expiration_date: expiration_date_parsed}, config);
+    console.log(`${API_URL}/pantry_items`)
+    const response = await axios.post(`${API_URL}/pantry_items`, {...foodItemAPI, expiration_date: expiration_date_parsed}, config);
     if (response.status === 201) {
       return response.data;
     } else {
@@ -65,7 +65,7 @@ export const updateFoodItem = async (foodItem: FoodItem, accessToken: string) =>
   const expiration_date_parsed = new Date(foodItem.expirationDate);
 
   try {
-    const response = await axios.put(`${API_URL}/food_items/${foodItem.id}`, {...foodItemAPI, expiration_date: expiration_date_parsed}, config);
+    const response = await axios.put(`${API_URL}/pantry_items/${foodItem.id}`, {...foodItemAPI, expiration_date: expiration_date_parsed}, config);
     if (response.status === 200) {
       return response.data;
     } else {
@@ -86,7 +86,7 @@ export const deleteFoodItem = async (foodItemId: number, accessToken: string) =>
     }
   }
   try {
-    const response = await axios.delete(`${API_URL}/food_items/${foodItemId}`, config);
+    const response = await axios.delete(`${API_URL}/pantry_items/${foodItemId}`, config);
     if (response.status === 204) {
       return response.data;
     } else {
