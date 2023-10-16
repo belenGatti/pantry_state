@@ -1,12 +1,17 @@
 class Api::V1::PantryItemsController < ApplicationController
   before_action :authorize
-  before_action :set_pantry_item, only: %i[ show update destroy ]
+  # before_action :set_pantry_item, only: %i[ show update destroy ]
 
   # GET /pantry_items
   def index
     @pantry_items = PantryItem.all
-
-    render json: @pantry_items
+    # if no items return empty array
+    if @pantry_items.length == 0
+      render json: []
+    else
+      render json: @pantry_items
+    end
+    
   end
 
   # GET /pantry_items/1

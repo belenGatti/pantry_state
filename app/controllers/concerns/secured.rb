@@ -22,9 +22,17 @@ module Secured
     
     validation_response = Auth0Client.validate_token(token)
     
-    return unless (error = validation_response.error)
+    return unless validation_response.is_a?(Array) && validation_response.first.is_a?(Hash)
+
+    error = validation_response.first["error"]
+
+    if error
+      render json: { message: error["message"] }, status: error["status"]
+    end
+
+    # return unless (error = validation_response.error)
     
-    render json: { message: error.message }, status: error.status
+    # render json: { message: error.message }, status: error.status
   end
 
   private

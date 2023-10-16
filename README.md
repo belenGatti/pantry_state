@@ -9,6 +9,15 @@ To start Backend server
 rails s -p 3009
 ```
 
+# Using Ngrok
+
+Since a synchronization between Auth0's database and this project's is necesary to create a pantry automatically post registration, I have decided to implement Auth0's post registration flow. Since localhost is not accepted, Ngrok library is used get a domain. Since the free plan provides a random domain each time I start the server, which by the way is started with
+
+```
+ngrok http 3009
+```
+
+it is necessary to change the domain each time the server is served at config/environments/development.rb under config.hosts and under Auth0's Actions/Library/Sync with pantry-state rails
 <!-- This README would normally document whatever steps are necessary to get the
 application up and running.
 

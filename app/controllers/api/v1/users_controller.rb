@@ -1,18 +1,17 @@
 class Api::V1::UsersController < ApplicationController
-  before_action :authorize
+
     def create
-      # Create new user object
-      user = User.new(user_params)
-  
-      # return when record not saved
-      unless user.save
-        return render json: { message: user.errors.full_messages },
-                      status: :unprocessable_entity
+      email = params[:email]
+      auth0_id = params[:auth0_id]
+      name = params[:name]
+
+      user = User.create(email: email, auth0_id: auth0_id, name: name)
+      
+      if user.save
+        render json: { message: 'Create Success', user: user }
+      else
+        render json: { message: user.errors.full_messages }, status: :unprocessable_entity
       end
-  
-      # response if successfuly save
-      render json: { message: 'Create Success',
-                     user: }
     end
   
     def update
@@ -60,8 +59,9 @@ class Api::V1::UsersController < ApplicationController
   
     private
   
-    # set up strong parameter
-    def user_params
-      params.permit(:auth0_id, :name, :email)
-    end
+    # set up strong parameters
+    # def 
+    #   params.permit()
+    #   # params.permit(:auth0_id, :name, :email)
+    # end
   end
