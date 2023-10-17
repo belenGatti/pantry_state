@@ -23,39 +23,39 @@ class Api::V1::PantryItemsController < ApplicationController
 
   # POST /pantry_items
   def create
-    # check if pantry item already exists in the pantry 
-    # if @existing_pantry_item
-
-    #   # @existing_pantry_item.update(quantity: @existing_pantry_item.quantity + params[:quantity])
-    #   puts "Updating quantity for existing pantry item: #{@existing_pantry_item}"
-    #   @existing_pantry_item.update(quantity: @existing_pantry_item.quantity + params[:quantity])
-    #   puts "Updated quantity to: #{@existing_pantry_item.quantity}"
-    #   render json: @existing_pantry_item, status: :created, location: @existing_pantry_item
-    # else 
-    puts 'Creating?'
-    puts "Params: #{params[:name]}"
       @item = Item.find_by(label: params[:name])
-      puts "Item: #{@item}"
       @pantry_id = Pantry.find_by(auth0_id: params[:auth0_id])
-      @pantry_item = PantryItem.new(
-        pantry_id: @pantry_id.auth0_id,
-        item_id: @internal_id,
-        quantity: params[:quantity],
-        expiration_date: params[:expiration_date],
-      )
-      @pantry_item.pantry = @pantry_id
-      @pantry_item.item = @item
-
-      if @pantry_item.save
-      redirect_to '/food-items-list'
+      @item_exists = PantryItem.find_by(item_id: @item.internal_id, pantry_id: @pantry_id)
+      if @item_exists
+        @existing_item = PantryItem.find_by(id: @item_exists.id)
+        @existing_item.update(quantity: @item_exists.quantity + params[:quantity])
+        render json: @item_exists, status: :created
       else
-      render json: @pantry_item.errors, status: :unprocessable_entity
+        @pantry_item = PantryItem.new(
+          pantry_id: @pantry_id.auth0_id,
+          item_id: @internal_id,
+          quantity: params[:quantity],
+          expiration_date: params[:expiration_date],
+          name: params[:name]
+        )
+        @pantry_item.pantry = @pantry_id
+        @pantry_item.item = @item
+        if @pantry_item.save
+        else
+          render json: @pantry_item.errors, status: :unprocessable_entity
+        end
       end
-    # end
   end
 
   # PATCH/PUT /pantry_items/1
   def update
+    @pantry_item = PantryItem.find_by(id: params[:id])
+    if @pantry_item.quantity != params[:quantity]
+      @pantry_item.update(quantity: params[:quantity])
+    else
+      @pantry_item.expiration_date != params[:expiration_date]
+      @pantry_item.update(expiration_date: params[:expiration_date])
+    end
     if @pantry_item.update(pantry_item_params)
       render json: @pantry_item
     else
@@ -65,6 +65,7 @@ class Api::V1::PantryItemsController < ApplicationController
 
   # DELETE /pantry_items/1
   def destroy
+    @pantry_item = PantryItem.find_by(id: params[:id])
     @pantry_item.destroy
   end
 

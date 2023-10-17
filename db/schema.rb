@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_17_105741) do
+ActiveRecord::Schema[7.0].define(version: 2023_10_17_202610) do
   create_table "items", primary_key: "internal_id", force: :cascade do |t|
     t.string "label"
     t.string "category"
@@ -27,13 +27,14 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_17_105741) do
     t.string "auth0_id"
   end
 
-  create_table "pantry_items", primary_key: "pantry_id", force: :cascade do |t|
-    t.string "item_id"
+  create_table "pantry_items", force: :cascade do |t|
+    t.string "pantry_id"
+    t.integer "item_id", null: false
     t.integer "quantity"
     t.date "expiration_date"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.string "internal_id"
+    t.string "name"
   end
 
   create_table "users", primary_key: "auth0_id", id: :string, force: :cascade do |t|

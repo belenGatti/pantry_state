@@ -4,6 +4,7 @@ import axios, {AxiosRequestConfig} from "axios";
 import { APIFoodItem, FoodItem, FoodItemRequest } from "../FoodItems.types";
 import { API_URL } from "../constants";
 import {transformFromAPI, transformToAPI} from '../helper/FoodItems.transformer'
+import { redirect } from "react-router-dom";
 
 // get request to get all the food items
 export const getFoodItems = async (accessToken: string): Promise<FoodItem[]> => {
@@ -40,8 +41,8 @@ export const createFoodItem = async (foodItem: FoodItemRequest, accessToken: str
   const expiration_date_parsed = new Date(foodItem.expirationDate);
   try {
     const response = await axios.post(`${API_URL}/pantry_items`, {...foodItemAPI, expiration_date: expiration_date_parsed }, config);
-    if (response.status === 201) {
-      return response.data;
+    if (response.status >= 200 && response.status < 300) {
+      redirect('/food-items-list')
     } else {
       throw new Error('Error creating food item')
     }

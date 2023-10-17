@@ -5,4 +5,5 @@ class PantryItem < ApplicationRecord
     validates :quantity, presence: true
     validates :quantity, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
     validates :expiration_date, presence: true
+    validates :name, presence: true
 end

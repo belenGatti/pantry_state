@@ -60,23 +60,7 @@ class AddPrimaryKeys2 < ActiveRecord::Migration[7.0]
         updated_at DATETIME NOT NULL
       );
     SQL
-
-    # drop id colum from all tables
-
-    execute("DROP COLUMN IF EXISTS id FROM old_items;")
-    execute("DROP COLUMN IF EXISTS id FROM old_pantries;")
-    execute("DROP COLUMN IF EXISTS id FROM old_pantry_items;")
-    execute("DROP COLUMN IF EXISTS id FROM old_users;")
-
-    # Copy data from old tables to new tables
-    execute("INSERT INTO items SELECT * FROM old_items;")
-    execute("INSERT INTO pantries SELECT * FROM old_pantries;")
-    execute("INSERT INTO pantry_items SELECT * FROM old_pantry_items;")
-    execute("INSERT INTO users SELECT * FROM old_users;")
-
-    # Commit the transaction
-    execute("COMMIT;")
-
+  
     # Enable foreign key constraints
     execute("PRAGMA foreign_keys=on;")
   end
