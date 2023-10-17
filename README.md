@@ -18,6 +18,10 @@ ngrok http 3009
 ```
 
 it is necessary to change the domain each time the server is served at config/environments/development.rb under config.hosts and under Auth0's Actions/Library/Sync with pantry-state rails
+
+# 
+
+Difference between Item and Pantry Item is that the latter is an Item that has been added to de pantry and therefore has special attributes (quantity, exp_date).
 <!-- This README would normally document whatever steps are necessary to get the
 application up and running.
 

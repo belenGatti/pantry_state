@@ -10,44 +10,40 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_10_103150) do
-  create_table "items", force: :cascade do |t|
-    t.string "internal_id"
+ActiveRecord::Schema[7.0].define(version: 2023_10_17_105741) do
+  create_table "items", primary_key: "internal_id", force: :cascade do |t|
     t.string "label"
     t.string "category"
     t.string "measurement_unit"
     t.string "image"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "pantries", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_pantries_on_user_id"
+  create_table "pantries", primary_key: "pantry_id", force: :cascade do |t|
+    t.string "user_id"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.string "auth0_id"
   end
 
-  create_table "pantry_items", force: :cascade do |t|
-    t.integer "pantry_id", null: false
-    t.integer "item_id", null: false
+  create_table "pantry_items", primary_key: "pantry_id", force: :cascade do |t|
+    t.string "item_id"
     t.integer "quantity"
     t.date "expiration_date"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["item_id"], name: "index_pantry_items_on_item_id"
-    t.index ["pantry_id"], name: "index_pantry_items_on_pantry_id"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.string "internal_id"
   end
 
-  create_table "users", force: :cascade do |t|
-    t.string "auth0_id"
+  create_table "users", primary_key: "auth0_id", id: :string, force: :cascade do |t|
     t.string "name"
     t.string "email"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
-  add_foreign_key "pantries", "users"
-  add_foreign_key "pantry_items", "items"
-  add_foreign_key "pantry_items", "pantries"
+  add_foreign_key "pantries", "users", primary_key: "auth0_id"
+  add_foreign_key "pantry_items", "items", primary_key: "internal_id"
+  add_foreign_key "pantry_items", "pantries", primary_key: "pantry_id"
 end

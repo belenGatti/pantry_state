@@ -18,7 +18,7 @@ Rails.application.configure do
   config.server_timing = true
 
   # Use Ngrok for webhooks tunneling in development (localhost not accepted by Auth0) !! NEEDS TO BE CHANGED HERE AND IN AUTH0 WEBHOOKS EACH TIME NGROK STARTS :( UNLESS I PAY FIVE BUCKS A MONTH)
-  config.hosts << "3bad-86-14-154-25.ngrok-free.app"
+  config.hosts << "4bce-87-75-42-72.ngrok-free.app"
 
   # Enable/disable caching. By default caching is disabled.
   # Run rails dev:cache to toggle caching.

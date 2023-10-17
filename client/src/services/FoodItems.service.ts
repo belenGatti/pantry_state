@@ -38,10 +38,8 @@ export const createFoodItem = async (foodItem: FoodItemRequest, accessToken: str
   }
   const foodItemAPI = transformToAPI(foodItem);
   const expiration_date_parsed = new Date(foodItem.expirationDate);
-
   try {
-    console.log(`${API_URL}/pantry_items`)
-    const response = await axios.post(`${API_URL}/pantry_items`, {...foodItemAPI, expiration_date: expiration_date_parsed}, config);
+    const response = await axios.post(`${API_URL}/pantry_items`, {...foodItemAPI, expiration_date: expiration_date_parsed }, config);
     if (response.status === 201) {
       return response.data;
     } else {
