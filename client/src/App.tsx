@@ -7,10 +7,10 @@ import LoginPage from './components/LoginPage';
 import { User, UserContext } from './contexts/UserContext';
 import { getPantryNumber } from './services/Pantries.service';
 import {useAuth0} from '@auth0/auth0-react';
-import {Button} from '@mui/material';
+import NavBar from './components/NavBar';
 
 export const App = () => {
-  const {user, isAuthenticated, getAccessTokenSilently, logout} = useAuth0();
+  const {user, isAuthenticated, getAccessTokenSilently, logout, loginWithRedirect} = useAuth0();
     const [userState, setUserState] = useState<User>({
         auth0Id: '',
         name: '',
@@ -56,19 +56,36 @@ export const App = () => {
       })
     }
 
+    const handleLogin = async () => {
+      await loginWithRedirect({
+        appState: {
+          returnTo: "food-items-list",
+        },
+      });
+    };
+
+    const handleSignUp = async () => {
+      await loginWithRedirect({
+        appState: {
+          returnTo: "food-items-list",
+        },
+        authorizationParams: {
+          screen_hint: "signup",
+        },
+      });
+    };
+
     const userValue = {user: userState, setUser: setUserState}
     
   return (
     <UserContext.Provider value={userValue}>
+      <NavBar handleLogout={handleLogout} isAuthenticated={isAuthenticated} handleLogin={handleLogin} handleSignUp={handleSignUp}/>
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="food-items-list" element={<FoodItemsList />} />
         <Route path="new-food-item" element={<NewItemForm />} />
         <Route path="update-food-item" element={<NewItemForm />} />
       </Routes>
-      {/* @TODO move this to navbar */}
-      {isAuthenticated && (
-        <Button onClick={() => handleLogout()}>Logout</Button>)}
     </UserContext.Provider>
   );
 }

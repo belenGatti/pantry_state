@@ -53,7 +53,8 @@ const FoodItemsList = () => {
           <Typography variant='h2'>{user.name}'s Pantry</Typography>
           {/* //@TODO add a search bar */}
           {/* //@TODO make all panels close? or close prev panel when opening another one */}
-           {/* //@TODO make display grid */}
+           {/* //@TODO make display grid with boxes for each category of pantry item*/}
+           {/* @TODO make a red box where items are expiring soon */}
           {foodItems.map((foodItem: FoodItemType, index) => (
           <FoodItem key={index} foodItem={foodItem} handleDelete={handleDelete} handleEdit={handleEdit}/>
           )
