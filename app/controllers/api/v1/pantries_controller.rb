@@ -1,6 +1,21 @@
 class Api::V1::PantriesController < ApplicationController
     before_action :authorize
-    def create_pantry
+
+    def index
+        @pantries = Pantry.all
+        if @pantries.length == 0
+            render json: []
+        else
+            render json: @pantries
+        end
+    end
+
+    def show
+        @pantry = Pantry.find_by(user_id: params[:id])
+        render json: @pantry.id
+    end
+
+    def create
         @user = current_user
 
         if @user.pantry.nil?
@@ -10,6 +25,11 @@ class Api::V1::PantriesController < ApplicationController
             redirect_to '/food-items-list'
             
         end
+    end
 
-    end 
+    def update
+    end
+
+    def Destroy
+    end
 end

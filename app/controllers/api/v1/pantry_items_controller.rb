@@ -5,26 +5,23 @@ class Api::V1::PantryItemsController < ApplicationController
 
   # GET /pantry_items
   def index
-    @pantry_items = PantryItem.all
+  end
+
+  # GET /pantry_items/1
+  def show
+    @pantry_items = PantryItem.select { |item| item.pantry_id == params[:id] }
     # if no items return empty array
     if @pantry_items.length == 0
       render json: []
     else
       render json: @pantry_items
     end
-    
-  end
-
-  # GET /pantry_items/1
-  def show
-    @user = session[:userinfo]
-    render json: @pantry_item
   end
 
   # POST /pantry_items
   def create
       @item = Item.find_by(label: params[:name])
-      @pantry_id = Pantry.find_by(auth0_id: params[:auth0_id])
+      @pantry_id = Pantry.find_by(pantry_id: params[:pantry_id])
       @item_exists = PantryItem.find_by(item_id: @item.internal_id, pantry_id: @pantry_id)
       if @item_exists
         @existing_item = PantryItem.find_by(id: @item_exists.id)
@@ -32,7 +29,7 @@ class Api::V1::PantryItemsController < ApplicationController
         render json: @item_exists, status: :created
       else
         @pantry_item = PantryItem.new(
-          pantry_id: @pantry_id.auth0_id,
+          pantry_id: params[:pantry_id],
           item_id: @internal_id,
           quantity: params[:quantity],
           expiration_date: params[:expiration_date],

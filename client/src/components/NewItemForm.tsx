@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useContext } from 'react'
 import { ErrorMessage, useFormik, FormikProvider } from 'formik';
 import {object, string, number, date} from 'yup';
 import { Autocomplete, Button, TextField, } from '@mui/material';
@@ -6,8 +6,8 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { createFoodItem, updateFoodItem } from '../services/FoodItems.service';
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
 import {getItemsList} from '../services/ItemsList.service';
+import { UserContext } from '../contexts/UserContext';
 
 const newItemValidationSchema = object({
     name: string().required('Name is required'),
@@ -25,7 +25,7 @@ function NewItemForm() {
     const [isLoading, setIsLoading] = useState(true);
     const [isEditMode, setIsEditMode] = useState(false);
     const [foodItemOptions, setFoodItemOptions] = useState<Option[]>([]);
-    const {isAuthenticated, getAccessTokenSilently, user} = useAuth0();
+    const {user} = useContext(UserContext);
     const location = useLocation();
     const navigate = useNavigate();
     /** Fetches available items from the BE, transforms them to use in the autocomplete and sets them in the state*/
@@ -54,22 +54,19 @@ function NewItemForm() {
          },
          validationSchema: newItemValidationSchema,
          onSubmit: async (values) => {
-            console.log(isEditMode, isAuthenticated, user)
              const expirationDate = new Date(values.expirationDate).toISOString()
              if (isEditMode) {
                 if (values.id !== null) {
                 try {
-                    const accessToken = await getAccessTokenSilently();
-                    await updateFoodItem({...values, expirationDate}, accessToken)
+                    await updateFoodItem({...values, expirationDate}, user.accessToken, user.pantryId.toString())
                     return navigate('/food-items-list')
                 } catch (error) {
                     console.error("Error updating food item:", error);
                 }
              }
-             } else if (!isEditMode && isAuthenticated) {
+             } else if (!isEditMode && user.isAuthenticated) {
                  try {
-                     const accessToken = await getAccessTokenSilently();
-                     await createFoodItem({...values, expirationDate}, accessToken)
+                     await createFoodItem({...values, expirationDate}, user.accessToken, user.pantryId.toString())
                      return navigate('/food-items-list')
                  } catch (error) {
                      console.error("Error creating NEW food item:", error);

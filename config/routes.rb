@@ -6,6 +6,7 @@ Rails.application.routes.draw do
       resources :pantry_items
       resources :items
       resources :users
+      resources :pantries
     end
   end
 end
