@@ -1,4 +1,4 @@
-export interface FoodItem {
+export interface FoodItem { // PantryItem
     id: number,
     name: string,
     quantity: number,

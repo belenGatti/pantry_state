@@ -1,5 +1,5 @@
-import React from 'react'
-import {Accordion, AccordionSummary, AccordionDetails, Typography, IconButton, Box} from '@mui/material'
+import React , { useState} from 'react'
+import {Accordion, AccordionSummary, AccordionDetails, Button, Typography, IconButton, Box, Dialog, DialogActions, DialogContentText, DialogContent} from '@mui/material'
 import {FoodItem as FoodItemType} from '../FoodItems.types'
 import { formatRelative } from 'date-fns'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -15,9 +15,33 @@ interface FoodItemProps {
 function FoodItem(props: FoodItemProps) {
     const {handleDelete, handleEdit, foodItem} = props; 
     const {name, quantity, expirationDate} = foodItem;
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+    const handleModalOpen = () => {
+        setDeleteModalOpen(true);
+    }
+
+    const handleClose = () => {
+        setDeleteModalOpen(false);
+    }
+
+    const handleDeleteAndCloseModal = (id: number) => {
+        setDeleteModalOpen(false);
+        handleDelete(id);
+    }
 
     return (
-        <Accordion style={{width: '300px'}}>
+        <>
+        <Dialog open={deleteModalOpen} onClose={handleClose}>
+            <DialogContent>
+                <DialogContentText>Are you sure?</DialogContentText>
+            </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => handleDeleteAndCloseModal(foodItem.id)}>Yes</Button>
+                    <Button onClick={handleClose}>No</Button>
+                </DialogActions>
+        </Dialog>
+        <Accordion style={{width: '300px', margin: '5px', padding: '5px'}}>
             {/* @TODO style icons better */}
             <Box sx={{ display: "flex", justifyContent: 'space-between' }}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -28,7 +52,7 @@ function FoodItem(props: FoodItemProps) {
               <EditIcon />
             </IconButton>
 
-            <IconButton onClick={() => handleDelete(foodItem.id)}>
+            <IconButton onClick={() => handleModalOpen()}>
               <DeleteIcon />
             </IconButton>
             </Box>
@@ -39,6 +63,7 @@ function FoodItem(props: FoodItemProps) {
                 Expiration date: {formatRelative(new Date(expirationDate), new Date())}
             </AccordionDetails>
         </Accordion>
+        </>
     )
 }
 
