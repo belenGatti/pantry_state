@@ -7,14 +7,27 @@ class Api::V1::PantryItemsController < ApplicationController
   def index
   end
 
-  # GET /pantry_items/1
+  # GET /pantry_items/1 get all pantry items for a specific pantry/user
   def show
     @pantry_items = PantryItem.select { |item| item.pantry_id == params[:id] }
     # if no items return empty array
-    if @pantry_items.length == 0
+    if @pantry_items.empty?
       render json: []
     else
-      render json: @pantry_items
+      @pantry_items_with_details = @pantry_items.map do |pantry_item|
+        @item = pantry_item.item
+        {
+          id: pantry_item.id,
+          pantry_id: pantry_item.pantry_id,
+          item_id: @item.id,
+          name: pantry_item.name,
+          quantity: pantry_item.quantity,
+          expiration_date: pantry_item.expiration_date,
+          category: @item.category,
+          measurement_unit: @item.measurement_unit
+        }
+      end
+      render json: @pantry_items_with_details
     end
   end
 
@@ -29,12 +42,11 @@ class Api::V1::PantryItemsController < ApplicationController
         render json: @item_exists, status: :created
       else
         @pantry_item = PantryItem.new(
-          pantry_id: params[:pantry_id],
+          pantry_id: @pantry_id,
           item_id: @internal_id,
           quantity: params[:quantity],
           expiration_date: params[:expiration_date],
-          name: params[:name]
-        )
+          name: params[:name])
         @pantry_item.pantry = @pantry_id
         @pantry_item.item = @item
         if @pantry_item.save
