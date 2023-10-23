@@ -8,7 +8,7 @@ import { User, UserContext } from './contexts/UserContext';
 import { getPantryNumber } from './services/Pantries.service';
 import {useAuth0} from '@auth0/auth0-react';
 import NavBar from './components/NavBar';
-
+// @TODO add translations
 export const App = () => {
   const {user, isAuthenticated, getAccessTokenSilently, logout, loginWithRedirect} = useAuth0();
     const [userState, setUserState] = useState<User>({

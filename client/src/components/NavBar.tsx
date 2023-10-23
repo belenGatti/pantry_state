@@ -55,11 +55,11 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
   },
 }));
-
+// @TODO needs to be smaller to fit mobile screens
 const NavBar = (props: NavBarProps) => {
   const { handleLogout, isAuthenticated, handleLogin, handleSignUp } = props;
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box>
       <AppBar position="fixed"  
       style={{
         backgroundColor: '#C4DFFF',

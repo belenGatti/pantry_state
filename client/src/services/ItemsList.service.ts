@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_URL } from "../constants";
 
-interface APIItem {
+export interface APIItem {
     category: string;
     created_at: string;
     id: number;
