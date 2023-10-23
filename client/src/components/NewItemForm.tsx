@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef, useContext } from 'react'
 import { ErrorMessage, useFormik, FormikProvider } from 'formik';
 import {object, string, number, date} from 'yup';
-import { Autocomplete, Button, TextField, } from '@mui/material';
+import { Autocomplete, Button, TextField, InputAdornment } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { createFoodItem, updateFoodItem } from '../services/FoodItems.service';
 import { useNavigate, useLocation } from "react-router-dom";
-import {getItemsList} from '../services/ItemsList.service';
+import { APIItem, getItemsList } from '../services/ItemsList.service';
 import { UserContext } from '../contexts/UserContext';
 
 const newItemValidationSchema = object({
@@ -25,6 +25,8 @@ function NewItemForm() {
     const [isLoading, setIsLoading] = useState(true);
     const [isEditMode, setIsEditMode] = useState(false);
     const [foodItemOptions, setFoodItemOptions] = useState<Option[]>([]);
+    const [foodItems, setFoodItems] = useState<APIItem[]>([]);
+    const [measurementUnit, setMeasurementUnit] = useState<string>('');
     const {user} = useContext(UserContext);
     const location = useLocation();
     const navigate = useNavigate();
@@ -35,6 +37,7 @@ function NewItemForm() {
             const itemsAsOptions = items.map(item => {
                 return {label: item.label, id: item.intern_id}
             })
+            setFoodItems(items);
             setFoodItemOptions(itemsAsOptions)
         } catch (error) {
             console.error('Error getting items list', error)
@@ -104,6 +107,16 @@ function NewItemForm() {
       }, [foodItemOptions.length]);
       
 
+    useEffect(() => {
+        const getMeasurementUnit = (name: string) => {
+            const item = foodItems.find(item => item.label === name)
+            if (!item) return null;
+            return item.measurement_unit
+        } 
+        const measurementUnit = getMeasurementUnit(formik.values.name)
+        setMeasurementUnit(measurementUnit || '')
+    }, [formik.values.name, foodItems])
+
     if (isLoading) {
         return <div>Loading...</div>
     }
@@ -112,6 +125,7 @@ function NewItemForm() {
         return navigate('/food-items-list')
     }
 
+
     return (
     <div style={{width: '300px'}}>
         <FormikProvider value={formik}>
@@ -119,7 +133,7 @@ function NewItemForm() {
                 {/* @TODO add option to type new item and add to existing list (and backend) */}
                 <Autocomplete id='name'
                     options={foodItemOptions} 
-                    onChange={(e, value) => formik.setFieldValue('name', value?.label)} 
+                    onChange={(_e, value) => formik.setFieldValue('name', value?.label)} 
                     renderInput={(params) => <TextField {...params} label='FoodItem' name="name"/>}
                     defaultValue={isEditMode ? foodItemOptions[indexRef.current!] : null}
                     /** Key used to re-render */
@@ -129,13 +143,15 @@ function NewItemForm() {
                     }
                     />
                 <ErrorMessage name='name' />
-                <TextField name='quantity' type='number' 
+                <TextField name='quantity' type='number'
                 InputProps={{
+                    endAdornment: <InputAdornment position="end">{measurementUnit}</InputAdornment>,
                     inputProps: { 
                         max: 100, min: 0 
                     }
                 }}
-                value={formik.values.quantity} onChange={formik.handleChange} />
+                value={formik.values.quantity}
+                onChange={formik.handleChange} />
                 <ErrorMessage name='quantity' />
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <DatePicker value={new Date(formik.values.expirationDate)} onChange={(value)=> formik.setFieldValue('expirationDate', value)} />
