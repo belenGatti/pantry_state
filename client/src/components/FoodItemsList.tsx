@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import {Typography, Button, Grid, List, ListItem, Paper} from '@mui/material';
+import {Typography, Button, Grid} from '@mui/material';
 import {useState, useEffect} from 'react'
 import {getFoodItems} from '../services/FoodItems.service';
 import {FoodItem as FoodItemType} from '../FoodItems.types';
@@ -8,6 +8,7 @@ import {Link} from 'react-router-dom'
 import {deleteFoodItem} from '../services/FoodItems.service';
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
+import ItemsPostIt from "./ItemsPostIt";
 
 const FoodItemsList = () => {
     const {user} = useContext(UserContext);
@@ -43,7 +44,10 @@ const FoodItemsList = () => {
 
     const expiredItems: FoodItemType[] = [];
     const itemsExpiringThisWeek: FoodItemType[] = [];
+    let foodCategories: string[] = [];
 
+    /** Makes two arrays, one for expired items and another one for soon to be expired items,
+     *  ordering them by expiration date (first to expire, first in the list) */
     const getExpiredAndSoonToExpireItems = () => {
       const today = new Date();
       const nextWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7);
@@ -55,44 +59,42 @@ const FoodItemsList = () => {
           itemsExpiringThisWeek.push(foodItem);
         }
       })
+
+      expiredItems.sort((a, b) => new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime());
+      itemsExpiringThisWeek.sort((a, b) => new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime());
+    }
+
+    const getFoodItemsByCategory = () => {
+      foodCategories = [...new Set(foodItems.map(foodItem => foodItem.category))];
+      return foodCategories;
     }
 
     getExpiredAndSoonToExpireItems();
+    getFoodItemsByCategory();
   
-  //@TODO list view = pantry view that will involve a lot of stlying 
-  //@TODO filter by expiration date and show items that will expire in the next 3 days in red and at the beginning
+  //@TODO list view = pantry view that will involve a lot of stlying
     return (
-        <div style={{width: '50%', height: '100%',  marginLeft: '20%', marginRight: '20%'}}>
-          <Typography variant='h1'>Food Items</Typography>
+        <div style={{height: '100%',  marginLeft: '5%', marginRight: '5%'}}>
+          <Typography variant='h3'>Food Items</Typography>
           {/* //@TODO add a search bar */}
           {/* //@TODO make all panels close? or close prev panel when opening another one */}
            {/* //@TODO make display grid with boxes for each category of pantry item*/}
-           <Paper style={{backgroundColor: '#DD6031', margin: '10px', padding: '10px', width: '200px', height: '200px'}} elevation={3}>
-              <Typography>Expiring this week:</Typography>
-              <List>
-                {itemsExpiringThisWeek.map((foodItem: FoodItemType, index) => (
-                  <ListItem>
-                    <Typography key={index}>{foodItem.name}</Typography>
-                  </ListItem>
-                ))}
-              </List>
-           </Paper>
-           <Paper style={{backgroundColor: '#ED474A', margin: '10px', padding: '10px', width: '200px', height: '200px'}} elevation={3}>
-              <Typography>Expired:</Typography>
-              <List>
-                {expiredItems.map((foodItem: FoodItemType, index) => (
-                  <ListItem>
-                    {/* @TODO add icon to item https://mui.com/joy-ui/react-list/#decorators add to database aswell */}
-                    <Typography key={index}>{foodItem.name}</Typography>
-                  </ListItem>
-                ))}
-              </List>
-           </Paper>
-          <Grid container spacing={1}>
-            {foodItems.map((foodItem: FoodItemType, index) => (
-              <FoodItem key={index} foodItem={foodItem} handleDelete={handleDelete} handleEdit={handleEdit}/>
-            )
-            )}
+           {itemsExpiringThisWeek.length && (
+            <ItemsPostIt items={itemsExpiringThisWeek} title='Items expiring this week'/>
+           )}
+           {expiredItems.length && (
+            <ItemsPostIt items={expiredItems} title='Expired items'/>
+           )}
+          <Grid container spacing={{xs: 3, xl: 1}} style={{width: '100%', display: 'flex', justifyContent: 'space-around'}} columns={{xs: 12, s: 4, md: 3, xl: 2}}>
+            {foodCategories.map((category: string) => (
+              <Grid item style={{ marginRight: '2rem'}} key={category}>
+                <Typography variant='h5'>{category}</Typography>
+                {foodItems.filter(foodItem => foodItem.category === category).map((foodItem: FoodItemType, index) => (
+                  <FoodItem key={index} foodItem={foodItem} handleDelete={handleDelete} handleEdit={handleEdit}/>
+                ))
+            }
+              </Grid>
+            ))}
           </Grid>
           <Link to='/new-food-item'>
           <Button variant='outlined'>Add new item</Button>
