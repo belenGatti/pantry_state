@@ -6,8 +6,12 @@ import FoodItemsList from './components/FoodItemsList';
 import LoginPage from './components/LoginPage';
 import { User, UserContext } from './contexts/UserContext';
 import { getPantryNumber } from './services/Pantries.service';
-import {useAuth0} from '@auth0/auth0-react';
+import { useAuth0 } from '@auth0/auth0-react';
 import NavBar from './components/NavBar';
+import { getItemsList } from './services/ItemsList.service';
+import { ItemsContext } from './contexts/ItemsContext';
+import { APIItem } from './FoodItems.types';
+
 // @TODO add translations
 export const App = () => {
   const {user, isAuthenticated, getAccessTokenSilently, logout, loginWithRedirect} = useAuth0();
@@ -19,6 +23,17 @@ export const App = () => {
         accessToken: '',
         isAuthenticated: false
     });
+    const [foodItems, setFoodItems] = useState<APIItem[]>([]);
+
+    const getFoodItemsOptions = async (): Promise<void> => {
+      try {
+          const items = await getItemsList();
+          setFoodItems(items);
+      } catch (error) {
+          console.error('Error getting items list', error)
+      }
+    };
+
     useEffect(() => {
       const getAccessTokenAndPantryId = async () => {
         if (!user) return;
@@ -33,6 +48,7 @@ export const App = () => {
               accessToken: accessToken,
               isAuthenticated: isAuthenticated
           })
+          await getFoodItemsOptions();
         } catch (error) {
           console.error("Error getting access token and pantry id:", error);
         }
@@ -76,16 +92,20 @@ export const App = () => {
     };
 
     const userValue = {user: userState, setUser: setUserState}
+
+    const itemsValue = {items: foodItems, setItems: setFoodItems}
     
   return (
     <UserContext.Provider value={userValue}>
       <NavBar handleLogout={handleLogout} isAuthenticated={isAuthenticated} handleLogin={handleLogin} handleSignUp={handleSignUp}/>
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="food-items-list" element={<FoodItemsList />} />
-        <Route path="new-food-item" element={<NewItemForm />} />
-        <Route path="update-food-item" element={<NewItemForm />} />
-      </Routes>
+        <ItemsContext.Provider value={itemsValue}>
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="food-items-list" element={<FoodItemsList />} />
+            <Route path="new-food-item" element={<NewItemForm />} />
+            <Route path="update-food-item" element={<NewItemForm />} />
+          </Routes>
+        </ItemsContext.Provider>
     </UserContext.Provider>
   );
 }

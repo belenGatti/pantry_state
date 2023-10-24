@@ -1,16 +1,6 @@
 import axios from "axios";
 import { API_URL } from "../constants";
-
-export interface APIItem {
-    category: string;
-    created_at: string;
-    id: number;
-    image: string;
-    intern_id: string;
-    label: string;
-    measurement_unit: string;
-    updated_at: string;
-}
+import { APIItem } from "../FoodItems.types";
 
 export const getItemsList = async (): Promise<APIItem[]> => {
     try {

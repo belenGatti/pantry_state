@@ -1,11 +1,11 @@
 import React, { useContext } from "react";
-import {Typography, Button, Grid} from '@mui/material';
-import {useState, useEffect} from 'react'
-import {getFoodItems} from '../services/FoodItems.service';
-import {FoodItem as FoodItemType} from '../FoodItems.types';
+import { Typography, Button, Grid } from '@mui/material';
+import { useState, useEffect } from 'react'
+import { getFoodItems } from '../services/FoodItems.service';
+import { FoodItem as FoodItemType } from '../FoodItems.types';
 import FoodItem from "./FoodItem";
-import {Link} from 'react-router-dom'
-import {deleteFoodItem} from '../services/FoodItems.service';
+import { Link } from 'react-router-dom'
+import { deleteFoodItem } from '../services/FoodItems.service';
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import ItemsPostIt from "./ItemsPostIt";
@@ -74,11 +74,14 @@ const FoodItemsList = () => {
   
   //@TODO list view = pantry view that will involve a lot of stlying
     return (
-        <div style={{height: '100%',  marginLeft: '5%', marginRight: '5%'}}>
+        <div style={{height: '100%',  margin: '5%'}}>
           <Typography variant='h3'>Food Items</Typography>
+          <Link to='/new-food-item'>
+          <Button variant='outlined'>Add new item</Button>
+          </Link>
           {/* //@TODO add a search bar */}
           {/* //@TODO make all panels close? or close prev panel when opening another one */}
-           {/* //@TODO make display grid with boxes for each category of pantry item*/}
+          {/* //@TODO make display grid with boxes for each category of pantry item*/}
            {itemsExpiringThisWeek.length && (
             <ItemsPostIt items={itemsExpiringThisWeek} title='Items expiring this week'/>
            )}
@@ -96,9 +99,6 @@ const FoodItemsList = () => {
               </Grid>
             ))}
           </Grid>
-          <Link to='/new-food-item'>
-          <Button variant='outlined'>Add new item</Button>
-          </Link>
         </div>
     )
 }

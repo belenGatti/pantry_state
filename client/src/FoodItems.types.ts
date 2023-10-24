@@ -31,3 +31,14 @@ export interface FoodItemRequest {
     quantity: number;
     expirationDate: string;
 }
+
+export interface APIItem {
+    category: string;
+    created_at: string;
+    id: number;
+    image: string;
+    intern_id: string;
+    label: string;
+    measurement_unit: string;
+    updated_at: string;
+}

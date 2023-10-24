@@ -6,8 +6,9 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { createFoodItem, updateFoodItem } from '../services/FoodItems.service';
 import { useNavigate, useLocation } from "react-router-dom";
-import { APIItem, getItemsList } from '../services/ItemsList.service';
 import { UserContext } from '../contexts/UserContext';
+import { ItemsContext } from '../contexts/ItemsContext';
+
 
 const newItemValidationSchema = object({
     name: string().required('Name is required'),
@@ -21,11 +22,11 @@ interface Option {
 }
 
 function NewItemForm() {
+    const {items} = useContext(ItemsContext);
     const indexRef = useRef<number>();
     const [isLoading, setIsLoading] = useState(true);
     const [isEditMode, setIsEditMode] = useState(false);
     const [foodItemOptions, setFoodItemOptions] = useState<Option[]>([]);
-    const [foodItems, setFoodItems] = useState<APIItem[]>([]);
     const [measurementUnit, setMeasurementUnit] = useState<string>('');
     const {user} = useContext(UserContext);
     const location = useLocation();
@@ -33,11 +34,9 @@ function NewItemForm() {
     /** Fetches available items from the BE, transforms them to use in the autocomplete and sets them in the state*/
     const getFoodItemsOptions = async (): Promise<void> => {
         try {
-            const items = await getItemsList();
             const itemsAsOptions = items.map(item => {
                 return {label: item.label, id: item.intern_id}
             })
-            setFoodItems(items);
             setFoodItemOptions(itemsAsOptions)
         } catch (error) {
             console.error('Error getting items list', error)
@@ -79,10 +78,8 @@ function NewItemForm() {
      })
     
      const getOptionsAndSetValues = async () => {
-       await getFoodItemsOptions();
        if (location.state?.foodItem) {
          setIsEditMode(true);
-         console.log(location.state.foodItem);
          formik.setValues({
            id: location.state.foodItem.id,
            name: location.state.foodItem.name,
@@ -97,6 +94,7 @@ function NewItemForm() {
      };
 
     useEffect(() => {
+        getFoodItemsOptions();
         getOptionsAndSetValues();
         if (foodItemOptions.length) {
             indexRef.current = foodItemOptions.findIndex(
@@ -109,13 +107,13 @@ function NewItemForm() {
 
     useEffect(() => {
         const getMeasurementUnit = (name: string) => {
-            const item = foodItems.find(item => item.label === name)
+            const item = items.find(item => item.label === name)
             if (!item) return null;
             return item.measurement_unit
         } 
         const measurementUnit = getMeasurementUnit(formik.values.name)
         setMeasurementUnit(measurementUnit || '')
-    }, [formik.values.name, foodItems])
+    }, [formik.values.name, items])
 
     if (isLoading) {
         return <div>Loading...</div>
