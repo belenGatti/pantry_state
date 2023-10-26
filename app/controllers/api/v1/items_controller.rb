@@ -1,4 +1,5 @@
 class Api::V1::ItemsController < ApplicationController
+    before_action :authorize, only: [:create]
     #        Item.create(id: "", label: "", category: "", measurement_unit: "", image: "")
     def initialise_data
         begin
@@ -73,6 +74,8 @@ class Api::V1::ItemsController < ApplicationController
 
     def create
         @items = Item.new(item_params)
+        puts "#{item_params}"
+        # need to make a call to the open ai api to get the category and others 
         if @items.save
             render json: @items, status: :created, location: @item
         else
@@ -91,6 +94,12 @@ class Api::V1::ItemsController < ApplicationController
     def destroy
         @items.destroy
     end
+
+    private
+    def item_params
+        params.require(:item).permit(:internal_id, :label)
+    end
+    
 end
 
 

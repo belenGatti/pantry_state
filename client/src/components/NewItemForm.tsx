@@ -1,13 +1,14 @@
 import React, { useEffect, useState, useRef, useContext } from 'react'
 import { ErrorMessage, useFormik, FormikProvider } from 'formik';
 import {object, string, number, date} from 'yup';
-import { Autocomplete, Button, TextField, InputAdornment } from '@mui/material';
+import { Button, TextField, InputAdornment } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { createFoodItem, updateFoodItem } from '../services/FoodItems.service';
 import { useNavigate, useLocation } from "react-router-dom";
 import { UserContext } from '../contexts/UserContext';
 import { ItemsContext } from '../contexts/ItemsContext';
+import Creatable from 'react-select/creatable';
 
 
 const newItemValidationSchema = object({
@@ -17,16 +18,17 @@ const newItemValidationSchema = object({
 })
 
 interface Option {
-    label: string,
-    id?: string
+    readonly label: string,
+    readonly value: string
 }
 
 function NewItemForm() {
-    const {items} = useContext(ItemsContext);
+    const {items, addItem} = useContext(ItemsContext);
     const indexRef = useRef<number>();
     const [isLoading, setIsLoading] = useState(true);
     const [isEditMode, setIsEditMode] = useState(false);
-    const [foodItemOptions, setFoodItemOptions] = useState<Option[]>([]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [foodItemOptions, setFoodItemOptions] = useState<any>([]);
     const [measurementUnit, setMeasurementUnit] = useState<string>('');
     const {user} = useContext(UserContext);
     const location = useLocation();
@@ -34,10 +36,12 @@ function NewItemForm() {
     /** Fetches available items from the BE, transforms them to use in the autocomplete and sets them in the state*/
     const getFoodItemsOptions = async (): Promise<void> => {
         try {
+            // this happens because it takes items.. there is a re render and the items are taken from items so i do need to create it from the backend first
             const itemsAsOptions = items.map(item => {
-                return {label: item.label, id: item.intern_id}
+                return {label: item.label, value: item.internal_id}
             })
             setFoodItemOptions(itemsAsOptions)
+            console.log(itemsAsOptions)
         } catch (error) {
             console.error('Error getting items list', error)
         }
@@ -76,6 +80,8 @@ function NewItemForm() {
              }
          }
      })
+     // CAN I DELETE THIS?
+    const [name, setName] = useState<string>(formik.values.name);
     
      const getOptionsAndSetValues = async () => {
        if (location.state?.foodItem) {
@@ -123,23 +129,49 @@ function NewItemForm() {
         return navigate('/food-items-list')
     }
 
+    const handleCreate = (inputValue: string) => {
+        console.log(inputValue)
+        console.log(foodItemOptions)
+        if (!foodItemOptions.some((option: Option) => option.label === inputValue)) {
+            const newOption = {
+                label: inputValue,
+                value: 'XXX'
+            }
+            console.log(newOption)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const newFoodItemOptions: any[] = foodItemOptions.push(newOption)
+            addItem(newOption);
+            setFoodItemOptions(newFoodItemOptions)
+            formik.setFieldValue('name', newOption.label)
+            console.log(foodItemOptions)
+        }
+        // maybe i can connect it to chat gpt api to give me back the measurement unit, the category and other stuff, that'd be cool
+        // add to the options array
+        // make a call at the same time to the items controller and create a new one
+        // in the controller i need to add the other attributes, with chat gtp api maybe?
+
+    }
+
+    const handleChange = (newValue: string | null): void => {
+        formik.setFieldValue('name', newValue)
+    } 
 
     return (
     <div style={{width: '300px'}}>
         <FormikProvider value={formik}>
             <form onSubmit={formik.handleSubmit}>
                 {/* @TODO add option to type new item and add to existing list (and backend) */}
-                <Autocomplete id='name'
+                {/* <Autocomplete id='name'
                     options={foodItemOptions} 
                     onChange={(_e, value) => formik.setFieldValue('name', value?.label)} 
                     renderInput={(params) => <TextField {...params} label='FoodItem' name="name"/>}
                     defaultValue={isEditMode ? foodItemOptions[indexRef.current!] : null}
-                    /** Key used to re-render */
                     key={isEditMode ? foodItemOptions[indexRef.current!].id : 'new'}
                     isOptionEqualToValue={(option, value) => {
                         return option.label === value.label;}
                     }
-                    />
+                /> */}
+                <Creatable id="name" options={foodItemOptions} value={name} onCreateOption={handleCreate} onChange={(newValue) => handleChange(newValue)} />
                 <ErrorMessage name='name' />
                 <TextField name='quantity' type='number'
                 InputProps={{

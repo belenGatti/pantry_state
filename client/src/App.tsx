@@ -9,8 +9,9 @@ import { getPantryNumber } from './services/Pantries.service';
 import { useAuth0 } from '@auth0/auth0-react';
 import NavBar from './components/NavBar';
 import { getItemsList } from './services/ItemsList.service';
-import { ItemsContext } from './contexts/ItemsContext';
+import { ItemsContext, NewItem } from './contexts/ItemsContext';
 import { APIItem } from './FoodItems.types';
+import {createItem} from './services/ItemsList.service';
 
 // @TODO add translations
 export const App = () => {
@@ -91,9 +92,18 @@ export const App = () => {
       });
     };
 
+    const handleCreateNewItem = async (item: NewItem) => {
+      try {
+        await createItem(userState.accessToken, item);
+        await getFoodItemsOptions();
+      } catch (error) {
+        console.error("Error creating NEW food item:", error);
+      }
+    }
+
     const userValue = {user: userState, setUser: setUserState}
 
-    const itemsValue = {items: foodItems, setItems: setFoodItems}
+    const itemsValue = {items: foodItems, setItems: setFoodItems, addItem: handleCreateNewItem}
     
   return (
     <UserContext.Provider value={userValue}>

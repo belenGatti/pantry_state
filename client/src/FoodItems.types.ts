@@ -37,7 +37,7 @@ export interface APIItem {
     created_at: string;
     id: number;
     image: string;
-    intern_id: string;
+    internal_id: string;
     label: string;
     measurement_unit: string;
     updated_at: string;
