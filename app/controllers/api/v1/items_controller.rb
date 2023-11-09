@@ -72,20 +72,30 @@ class Api::V1::ItemsController < ApplicationController
         render json: @items
     end
 
+    # def create
+    #     # @items = Item.new(item_params)
+    #     # puts "#{item_params}"
+    #     category_ids = CategoryIdsHelper.fetch_category_ids
+    #     # need to make a call to the open ai controller, pass the params to the generate_prompt method, then pass the prompt to the generate_response method
+    #     # then store the response in the label field
+    #     new_item = OpenAiController.generate_prompt(category_ids, item_params)
+    #     puts "#{new_item}"
+    #     open_ai_controller = OpenAiController.new
+    #     @item_created = open_ai_controller.generate_response(params: new_item)
+    #     puts "#{@item_created}"
+    #     # i need to extract the id, the measurement unit and the category from this item created and add it to the item_params to create a new item 
+    #     # then i need to save the new item
+    #     @items = Item.new(@item_created)
+    #     if @items.save
+    #         render json: @items, status: :created, location: @item
+    #     else
+    #         render json: @items.errors, status: :unprocessable_entity
+    #     end
+    # end
+
     def create
-        # @items = Item.new(item_params)
-        # puts "#{item_params}"
-        category_ids = CategoryIdsHelper.fetch_category_ids
-        # need to make a call to the open ai controller, pass the params to the generate_prompt method, then pass the prompt to the generate_response method
-        # then store the response in the label field
-        new_item = OpenAiController.generate_prompt(category_ids, item_params)
-        puts "#{new_item}"
-        open_ai_controller = OpenAiController.new
-        @item_created = open_ai_controller.generate_response(params: new_item)
-        puts "#{@item_created}"
-        # i need to extract the id, the measurement unit and the category from this item created and add it to the item_params to create a new item 
-        # then i need to save the new item
-        @items = Item.new(@item_created)
+        @items = Item.new(item_params)
+        @items.set_internal_id
         if @items.save
             render json: @items, status: :created, location: @item
         else
@@ -102,12 +112,13 @@ class Api::V1::ItemsController < ApplicationController
     end
 
     def destroy
-        @items.destroy
+        @item = Item.find_by(internal_id: params[:id])
+        @item.destroy
     end
 
     private
     def item_params
-        params.require(:item).permit(:internal_id, :label)
+        params.require(:item).permit(:label, :category_id, :measurement_unit, :image)
     end
     
 end

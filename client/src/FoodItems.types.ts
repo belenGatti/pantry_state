@@ -3,10 +3,10 @@ export interface FoodItem { // PantryItem
     name: string,
     quantity: number,
     expirationDate: string | Date,
-    createdAt: Date,
-    modifiedAt: Date,
-    category: string,
+    categoryId: string,
     measurementUnit: string,
+    pantryId: string,
+    itemId: number,
 }
 
 export interface NewFoodItem {
@@ -17,12 +17,15 @@ export interface NewFoodItem {
 
 export interface APIFoodItem {
     id: number;
+    item_id: number;
     name: string;
+    pantry_id: string;
     quantity: number;
     expiration_date: string;
-    created_at: Date;
-    modified_at: Date;
-    category: string;
+    category: {
+        id: string;
+        name: string;
+    }
     measurement_unit: string;
 }
 
@@ -41,4 +44,9 @@ export interface APIItem {
     label: string;
     measurement_unit: string;
     updated_at: string;
+}
+
+export interface FoodCategory {
+    id: string;
+    name: string;
 }

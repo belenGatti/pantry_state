@@ -10,8 +10,9 @@ import { useAuth0 } from '@auth0/auth0-react';
 import NavBar from './components/NavBar';
 import { getItemsList } from './services/ItemsList.service';
 import { ItemsContext, NewItem } from './contexts/ItemsContext';
-import { APIItem } from './FoodItems.types';
-import {createItem} from './services/ItemsList.service';
+import { APIItem, FoodCategory } from './FoodItems.types';
+import { createItem } from './services/ItemsList.service';
+import { getCategoriesNames } from './services/Categories.service';
 
 // @TODO add translations
 export const App = () => {
@@ -25,6 +26,8 @@ export const App = () => {
         isAuthenticated: false
     });
     const [foodItems, setFoodItems] = useState<APIItem[]>([]);
+
+    const [foodCategories, setFoodCategories] = useState<FoodCategory[]>([]);
 
     const getFoodItemsOptions = async (): Promise<void> => {
       try {
@@ -101,9 +104,22 @@ export const App = () => {
       }
     }
 
+    const getFoodCategories = async () => {
+      try {
+        const categories = await getCategoriesNames();
+        setFoodCategories(categories);
+      } catch (error) {
+        console.error("Error getting food categories:", error);
+      }
+    }
+
+    useEffect(() => {
+      getFoodCategories();
+    }, [])
+
     const userValue = {user: userState, setUser: setUserState}
 
-    const itemsValue = {items: foodItems, setItems: setFoodItems, addItem: handleCreateNewItem}
+    const itemsValue = {items: foodItems, foodCategories: foodCategories, setItems: setFoodItems, addItem: handleCreateNewItem}
     
   return (
     <UserContext.Provider value={userValue}>

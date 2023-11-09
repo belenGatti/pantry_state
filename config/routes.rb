@@ -7,6 +7,7 @@ Rails.application.routes.draw do
       resources :items
       resources :users
       resources :pantries
+      resources :categories
     end
   end
 end

@@ -2,16 +2,19 @@ import React, { useContext } from "react";
 import { Typography, Button, Grid } from '@mui/material';
 import { useState, useEffect } from 'react'
 import { getFoodItems } from '../services/FoodItems.service';
-import { FoodItem as FoodItemType } from '../FoodItems.types';
+import { FoodCategory, FoodItem as FoodItemType } from '../FoodItems.types';
 import FoodItem from "./FoodItem";
 import { Link } from 'react-router-dom'
 import { deleteFoodItem } from '../services/FoodItems.service';
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import ItemsPostIt from "./ItemsPostIt";
+import { ItemsContext } from "../contexts/ItemsContext";
 
 const FoodItemsList = () => {
+  
     const {user} = useContext(UserContext);
+    const {foodCategories} = useContext(ItemsContext);
     const [foodItems, setFoodItems] = useState<FoodItemType[]>([]);
     const navigate = useNavigate();
 
@@ -44,7 +47,6 @@ const FoodItemsList = () => {
 
     const expiredItems: FoodItemType[] = [];
     const itemsExpiringThisWeek: FoodItemType[] = [];
-    let foodCategories: string[] = [];
 
     /** Makes two arrays, one for expired items and another one for soon to be expired items,
      *  ordering them by expiration date (first to expire, first in the list) */
@@ -64,13 +66,7 @@ const FoodItemsList = () => {
       itemsExpiringThisWeek.sort((a, b) => new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime());
     }
 
-    const getFoodItemsByCategory = () => {
-      foodCategories = [...new Set(foodItems.map(foodItem => foodItem.category))];
-      return foodCategories;
-    }
-
     getExpiredAndSoonToExpireItems();
-    getFoodItemsByCategory();
   
   //@TODO list view = pantry view that will involve a lot of stlying
     return (
@@ -89,10 +85,10 @@ const FoodItemsList = () => {
             <ItemsPostIt items={expiredItems} title='Expired items'/>
            )}
           <Grid container spacing={{xs: 3, xl: 1}} style={{width: '100%', display: 'flex', justifyContent: 'space-around'}} columns={{xs: 12, s: 4, md: 3, xl: 2}}>
-            {foodCategories.map((category: string) => (
-              <Grid item style={{ marginRight: '2rem'}} key={category}>
-                <Typography variant='h5'>{category}</Typography>
-                {foodItems.filter(foodItem => foodItem.category === category).map((foodItem: FoodItemType, index) => (
+            {foodCategories.map((category: FoodCategory) => (
+              <Grid item style={{ marginRight: '2rem'}} key={category.id}>
+                <Typography variant='h5'>{category.name}</Typography>
+                {foodItems.filter(foodItem => foodItem.categoryId === category.id).map((foodItem: FoodItemType, index) => (
                   <FoodItem key={index} foodItem={foodItem} handleDelete={handleDelete} handleEdit={handleEdit}/>
                 ))
             }

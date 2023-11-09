@@ -6,22 +6,20 @@ export const transformFromAPI = (APIFoodItem: APIFoodItem): FoodItem => {
         name: APIFoodItem.name,
         quantity: APIFoodItem.quantity,
         expirationDate: APIFoodItem.expiration_date,
-        createdAt: APIFoodItem.created_at,
-        modifiedAt: APIFoodItem.modified_at,
-        category: APIFoodItem.category,
         measurementUnit: APIFoodItem.measurement_unit,
+        categoryId: APIFoodItem.category.id,
+        pantryId: APIFoodItem.pantry_id,
+        itemId: APIFoodItem.item_id,
     }
 }
 
 export const transformToAPI = (foodItem: FoodItem | NewFoodItem) => {
-    if ('id' in foodItem && 'createdAt' in foodItem && 'modifiedAt' in foodItem) {
+    if ('id' in foodItem) {
         return {
             name: foodItem.name,
             quantity: foodItem.quantity,
             expiration_date: foodItem.expirationDate,
-            created_at: foodItem.createdAt,
-            modified_at: foodItem.modifiedAt,
-            category: foodItem.category,
+            category_id: foodItem.categoryId,
         }
     } else {
         return {

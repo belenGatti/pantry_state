@@ -14,7 +14,7 @@ class OpenAiController < ApplicationController
             render json: answer
         end
     end
-
+    #@TODO refactor prompt to chatgtp, tell him about my categories and ask him if the new item fits in any of them, if not create a new one and return just that
     private
     def send_openai_request(params)
         # this is the response i get back from openai

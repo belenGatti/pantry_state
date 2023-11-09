@@ -10,14 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_20_121045) do
+ActiveRecord::Schema[7.0].define(version: 2023_11_09_114022) do
+  create_table "categories", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "items", primary_key: "internal_id", force: :cascade do |t|
     t.string "label"
-    t.string "category"
     t.string "measurement_unit"
     t.string "image"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.integer "category_id"
+    t.index ["category_id"], name: "index_items_on_category_id"
   end
 
   create_table "pantries", primary_key: "pantry_id", force: :cascade do |t|
@@ -34,7 +41,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_20_121045) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.string "name"
-    t.string "category"
   end
 
   create_table "users", primary_key: "auth0_id", id: :string, force: :cascade do |t|
