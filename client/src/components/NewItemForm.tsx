@@ -41,7 +41,6 @@ function NewItemForm() {
                 return {label: item.label, value: item.internal_id}
             })
             setFoodItemOptions(itemsAsOptions)
-            console.log(itemsAsOptions)
         } catch (error) {
             console.error('Error getting items list', error)
         }
@@ -131,19 +130,16 @@ function NewItemForm() {
 
     const handleCreate = (inputValue: string) => {
         console.log(inputValue)
-        console.log(foodItemOptions)
         if (!foodItemOptions.some((option: Option) => option.label === inputValue)) {
             const newOption = {
                 label: inputValue,
                 value: 'XXX'
             }
-            console.log(newOption)
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const newFoodItemOptions: any[] = foodItemOptions.push(newOption)
             addItem(newOption);
             setFoodItemOptions(newFoodItemOptions)
             formik.setFieldValue('name', newOption.label)
-            console.log(foodItemOptions)
         }
         // maybe i can connect it to chat gpt api to give me back the measurement unit, the category and other stuff, that'd be cool
         // add to the options array
