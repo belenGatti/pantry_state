@@ -2,17 +2,12 @@ require 'httparty'
 
 class OpenAiController < ApplicationController
     include HTTParty
-    def generate_response(params)
-        puts "PARMASMASMASMS #{params}"
-        response = send_openai_request({params: params})
+    def generate_response(prompt)
+        response = send_openai_request(prompt)
         parsed_response = JSON.parse(response.body) # or response.body?
         answer = parsed_response.dig("choices", 0, "message", "content")
-        puts "ANSWER #{answer}"
-        if answer.nil?
-            answer = "I don't know"
-        else
-            render json: answer
-        end
+        answer = [answer]
+        return answer || "An error ocurred when returning answer"
     end
     #@TODO refactor prompt to chatgtp, tell him about my categories and ask him if the new item fits in any of them, if not create a new one and return just that
     private
@@ -41,7 +36,6 @@ class OpenAiController < ApplicationController
         # }
         # return response
         url = "https://api.openai.com/v1/chat/completions"
-        puts "PARAMS INSIDE SEND OPENAI REQUEST AAAA #{params[:params]}"
         headers = {
             "Content-Type" => "application/json",
             "Authorization" => "Bearer #{ENV.fetch("OPENAI_API_KEY")}"
@@ -58,12 +52,12 @@ class OpenAiController < ApplicationController
         }
 
         response = HTTParty.post(url, headers: headers, body: data.to_json)
-        puts response
         return response
     end
 
-    def self.generate_prompt(category_ids, new_item)
-       prompt = "My pantry app categories: Fruits (internal_id 100+), last used ID: #{category_ids[:last_fruit_id]}, Vegetables (200, #{category_ids[:last_vegetables_id]}), Dairy (300, #{category_ids[:last_dairy_id]}), Canned goods (400, #{category_ids[:last_canned_goods_id]}). User adds '#{new_item[:label]}'. In which category? If none, create new with internal_id rules. Answer only an object with internal_id, label, category, measurement_unit (in metric system eg. kilo, package, unit). Do not include explanations."
+    def self.generate_prompt(categories, label)
+       prompt = "My pantry app categories: #{categories} . User adds '#{label}'. In which category does it belong? If none, create a new category label ('Other' not valid answer). Answer only an object with category_label and item's prefered measurement_unit (in metric system eg. kilo, package, unit). Do not include explanations."
+        return prompt
     end
 
     def prompt_params

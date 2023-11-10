@@ -9,7 +9,7 @@ import { getPantryNumber } from './services/Pantries.service';
 import { useAuth0 } from '@auth0/auth0-react';
 import NavBar from './components/NavBar';
 import { getItemsList } from './services/ItemsList.service';
-import { ItemsContext, NewItem } from './contexts/ItemsContext';
+import { ItemsContext } from './contexts/ItemsContext';
 import { APIItem, FoodCategory } from './FoodItems.types';
 import { createItem } from './services/ItemsList.service';
 import { getCategoriesNames } from './services/Categories.service';
@@ -95,9 +95,9 @@ export const App = () => {
       });
     };
 
-    const handleCreateNewItem = async (item: NewItem) => {
+    const handleCreateNewItem = async (label: string) => {
       try {
-        await createItem(userState.accessToken, item);
+        await createItem(userState.accessToken, label);
         await getFoodItemsOptions();
       } catch (error) {
         console.error("Error creating NEW food item:", error);

@@ -133,7 +133,14 @@ function NewItemForm() {
         if (!foodItemOptions.some((option: Option) => option.label === inputValue)) {
             const newOption = {
                 label: inputValue,
-                value: 'XXX'
+                // @TODO i shouldnt send the value in the future since the flow will be
+                // user creates new item
+                // isloading state until process is finished is set
+                // request to openai to determine category
+                // be creates new item
+                // items context refetches items
+                // new item appears here and isloading is false
+                // value: 'XXX'
             }
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const newFoodItemOptions: any[] = foodItemOptions.push(newOption)

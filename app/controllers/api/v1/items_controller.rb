@@ -1,5 +1,6 @@
 class Api::V1::ItemsController < ApplicationController
     before_action :authorize, only: [:create]
+    require 'json'
     #        Item.create(id: "", label: "", category: "", measurement_unit: "", image: "")
     def initialise_data
         begin
@@ -72,31 +73,23 @@ class Api::V1::ItemsController < ApplicationController
         render json: @items
     end
 
-    # def create
-    #     # @items = Item.new(item_params)
-    #     # puts "#{item_params}"
-    #     category_ids = CategoryIdsHelper.fetch_category_ids
-    #     # need to make a call to the open ai controller, pass the params to the generate_prompt method, then pass the prompt to the generate_response method
-    #     # then store the response in the label field
-    #     new_item = OpenAiController.generate_prompt(category_ids, item_params)
-    #     puts "#{new_item}"
-    #     open_ai_controller = OpenAiController.new
-    #     @item_created = open_ai_controller.generate_response(params: new_item)
-    #     puts "#{@item_created}"
-    #     # i need to extract the id, the measurement unit and the category from this item created and add it to the item_params to create a new item 
-    #     # then i need to save the new item
-    #     @items = Item.new(@item_created)
-    #     if @items.save
-    #         render json: @items, status: :created, location: @item
-    #     else
-    #         render json: @items.errors, status: :unprocessable_entity
-    #     end
-    # end
-
     def create
-        @items = Item.new(item_params)
-        @items.set_internal_id
-        if @items.save
+        @categories = Category.all.map { |category| category.name }
+        @categories = @categories.join(", ")
+        @prompt = OpenAiController.generate_prompt(@categories, params[:label])
+        open_ai_controller = OpenAiController.new
+        @category_and_measurement_unit = open_ai_controller.generate_response(params: @prompt)
+        json_object = JSON.parse(@category_and_measurement_unit[0])
+        @category_label = json_object["category_label"]
+        @measurement_unit = json_object["measurement_unit"]
+        @category = Category.find_by(name: @category_label)
+        if @category.nil?
+            @category = Category.create(name: @category_label)
+        end
+        @category_id = Category.find_by(name: @category_label)[:id]
+        @new_item = Item.new(label: params[:label], measurement_unit: @measurement_unit, category_id: @category_id)
+        @new_item.set_internal_id
+        if @new_item.save
             render json: @items, status: :created, location: @item
         else
             render json: @items.errors, status: :unprocessable_entity
@@ -118,9 +111,10 @@ class Api::V1::ItemsController < ApplicationController
 
     private
     def item_params
+        # params.permit(:label)
         params.require(:item).permit(:label, :category_id, :measurement_unit, :image)
+        # params.require(:item).permit(:label)
     end
-    
 end
 
 
