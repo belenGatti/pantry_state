@@ -50,3 +50,9 @@ export interface FoodCategory {
     id: string;
     name: string;
 }
+
+export interface NewItem {
+    label: string;
+    category: string;
+    measurementUnit: string;
+}

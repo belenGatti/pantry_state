@@ -10,7 +10,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import NavBar from './components/NavBar';
 import { getItemsList } from './services/ItemsList.service';
 import { ItemsContext } from './contexts/ItemsContext';
-import { APIItem, FoodCategory } from './FoodItems.types';
+import { APIItem, FoodCategory, NewItem } from './FoodItems.types';
 import { createItem } from './services/ItemsList.service';
 import { getCategoriesNames } from './services/Categories.service';
 
@@ -95,9 +95,9 @@ export const App = () => {
       });
     };
 
-    const handleCreateNewItem = async (label: string) => {
+    const handleCreateNewItem = async (newItem: NewItem) => {
       try {
-        await createItem(userState.accessToken, label);
+        await createItem(userState.accessToken, newItem);
         await getFoodItemsOptions();
       } catch (error) {
         console.error("Error creating NEW food item:", error);

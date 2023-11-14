@@ -76,19 +76,25 @@ class Api::V1::ItemsController < ApplicationController
     def create
         @categories = Category.all.map { |category| category.name }
         @categories = @categories.join(", ")
-        @prompt = OpenAiController.generate_prompt(@categories, params[:label])
-        open_ai_controller = OpenAiController.new
-        @category_and_measurement_unit = open_ai_controller.generate_response(params: @prompt)
-        json_object = JSON.parse(@category_and_measurement_unit[0])
-        @category_label = json_object["category_label"]
-        @measurement_unit = json_object["measurement_unit"]
-        @category = Category.find_by(name: @category_label)
-        if @category.nil?
-            @category = Category.create(name: @category_label)
+        if params[:category].present? && params[:category] != 'Other' && params[:measurement_unit].present? && params[:measurement_unit] != 'Other'
+            @category_id = Category.find_by(name: params[:category])[:id]
+            @new_item = Item.new(label: params[:label], measurement_unit: params[:measurement_unit], category_id: @category_id)
+            @new_item.set_internal_id
+        else
+            @prompt = OpenAiController.generate_prompt(@categories, params[:label])
+            open_ai_controller = OpenAiController.new
+            @category_and_measurement_unit = open_ai_controller.generate_response(params: @prompt)
+            json_object = JSON.parse(@category_and_measurement_unit[0])
+            @category_label = json_object["category_label"]
+            @measurement_unit = json_object["measurement_unit"]
+            @category = Category.find_by(name: @category_label)
+            if @category.nil?
+                @category = Category.create(name: @category_label)
+            end
+            @category_id = Category.find_by(name: @category_label)[:id]
+            @new_item = Item.new(label: params[:label], measurement_unit: @measurement_unit, category_id: @category_id)
+            @new_item.set_internal_id
         end
-        @category_id = Category.find_by(name: @category_label)[:id]
-        @new_item = Item.new(label: params[:label], measurement_unit: @measurement_unit, category_id: @category_id)
-        @new_item.set_internal_id
         if @new_item.save
             render json: @items, status: :created, location: @item
         else

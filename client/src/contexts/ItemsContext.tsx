@@ -1,11 +1,11 @@
 import { createContext } from "react";
-import { APIItem, FoodCategory } from "../FoodItems.types";
+import { APIItem, FoodCategory, NewItem } from "../FoodItems.types";
 
 interface ItemsContext {
     items: APIItem[];
     foodCategories: FoodCategory[];
     setItems: (items: APIItem[]) => void;
-    addItem: (label: string) => void;
+    addItem: (newItem: NewItem) => void;
 }
 
 export const ItemsContext = createContext<ItemsContext>({

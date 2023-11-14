@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useContext } from 'react'
 import { ErrorMessage, useFormik, FormikProvider } from 'formik';
 import {object, string, number, date} from 'yup';
-import { Button, TextField, InputAdornment, Dialog, DialogActions, DialogContent } from '@mui/material';
+import { Button, TextField, InputAdornment, Dialog, DialogActions, DialogContent, Select, MenuItem } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { createFoodItem, updateFoodItem } from '../services/FoodItems.service';
@@ -18,8 +18,8 @@ const newPantryItemValidationSchema = object({
 })
 
 const newItemValidationSchema = object({
-    category: string(),
-    measurementUnit: string()
+    category: string().required('Category is required'),
+    measurementUnit: string().required('Measurement unit is required'),
 })
 
 interface Option {
@@ -90,14 +90,14 @@ function NewItemForm() {
      const newItem = useFormik({
         enableReinitialize: true,
         initialValues: {
-            name: '',
+            label: '',
             category: '',
             measurementUnit: '',
         },
         validationSchema: newItemValidationSchema,
         onSubmit: async (values) => {
-            // @TODO adjust addItem service and BE to accept this new parameters if applicable
-            console.log('values', values)
+            addItem(values)
+            setNewItemModalOpen(false)
         }
     })
 
@@ -148,7 +148,8 @@ function NewItemForm() {
     }
 
     const handleChange = (newValue: string | null): void => {
-        formik.setFieldValue('name', newValue)
+        if (newValue === null) return;
+        newItem.setFieldValue('label', newValue)
     } 
 
     const handleClose = () => {
@@ -156,9 +157,30 @@ function NewItemForm() {
     }
 
     const handleModalOpen = (inputValue: string) => {
+        newItem.setFieldValue('label', inputValue)
         setNewItemModalOpen(true);
-        newItem.setFieldValue('name', inputValue)
+        console.log(newItem.values.label)
     }
+
+    const categoryOptions = [
+        {label: 'Fruits', id: 100},
+        {label: 'Vegetables', id: 200},
+        {label: 'Dairy', id: 300},
+        {label: 'Canned goods', id: 400},
+        {label: 'Grains and Cereals', id: 500},
+        {label: 'Meat', id: 600},
+        {label: 'Other', id: 0}
+    ]
+
+    const measurementUnitOptions = [
+        {label: 'unit', id: 'a'},
+        {label: 'kilo', id: 'b'},
+        {label: 'litre', id: 'c'},
+        {label: 'pan', id: 'd'},
+        {label: 'package', id: 'e'},
+        {label: 'can', id: 'f'},
+        {label: 'other', id: 'xxx'}
+    ]
 
     return (
     <div style={{width: '300px'}}>
@@ -166,14 +188,20 @@ function NewItemForm() {
             <FormikProvider value={newItem}>
                 <form onSubmit={newItem.handleSubmit}>
                     <DialogContent>
-                            {newItem.values.name} <br/>
+                            {newItem.values.label} <br/>
                             Category:
                             {/* @TODO add select for existing categories */}
-                            <TextField name="category" value={newItem.values.category} onChange={newItem.handleChange}/> <br/>
+                            <Select name="category" value={newItem.values.category} onChange={newItem.handleChange}>
+                                {categoryOptions.map(category => <MenuItem key={category.id} value={category.label}>{category.label}</MenuItem>)}
+                            </Select> <br/>
+                            <ErrorMessage name='category' /> <br/>
                             Measurement unit: 
                             {/* @TODO add select for existing measurement units */}
                             {/* @TODO fix this measurement_unit and measurementUnit thing */}
-                            <TextField name="measurementUnit" value={newItem.values.measurementUnit} onChange={newItem.handleChange}/>
+                            <Select name="measurementUnit" value={newItem.values.measurementUnit} onChange={newItem.handleChange}>
+                                {measurementUnitOptions.map(measurementUnit => <MenuItem key={measurementUnit.id} value={measurementUnit.label}>{measurementUnit.label}</MenuItem>)}
+                            </Select> <br/>
+                            <ErrorMessage name='measurementUnit' />
                     </DialogContent>
                         <DialogActions>
                             <Button type="submit">Create new item</Button>
@@ -184,7 +212,7 @@ function NewItemForm() {
         </Dialog>
         <FormikProvider value={formik}>
             <form onSubmit={formik.handleSubmit}>
-                <Creatable id="name" options={foodItemOptions} value={name} onCreateOption={handleModalOpen} onChange={(newValue) => handleChange(newValue)} />
+                <Creatable id="name" options={foodItemOptions} value={newItem.values.label} onCreateOption={handleModalOpen} onChange={(newValue) => handleChange(newValue)} />
                 <ErrorMessage name='name' />
                 <TextField name='quantity' type='number'
                 InputProps={{

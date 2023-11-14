@@ -1,6 +1,6 @@
 import axios, {AxiosRequestConfig} from "axios";
 import { API_URL } from "../constants";
-import { APIItem } from "../FoodItems.types";
+import { APIItem, NewItem } from "../FoodItems.types";
 
 export const getItemsList = async (): Promise<APIItem[]> => {
     try {
@@ -13,15 +13,20 @@ export const getItemsList = async (): Promise<APIItem[]> => {
     }
 }
 
-export const createItem = async (accessToken: string, label: string) => {
+export const createItem = async (accessToken: string, newItem: NewItem) => {
     const config: AxiosRequestConfig = {
         headers: {
           "content-type": "application/json",
           'Authorization': `Bearer ${accessToken}`
         },
       }
+    const newItemToAPIFormat = {
+        label: newItem.label,
+        category: newItem.category,
+        measurement_unit: newItem.measurementUnit,
+    }
     try {
-        const response = await axios.post(`${API_URL}/items`, label, config);
+        const response = await axios.post(`${API_URL}/items`, newItemToAPIFormat, config);
         return response.data;
     } catch (e) {
         console.error('Error creating item', e);
